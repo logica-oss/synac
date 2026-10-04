@@ -22,6 +22,6 @@ jobs:
         with:
           persist-credentials: false
       - name: Sync Agent Config
-        uses: logica-oss/actions-toolkit/sync-agent-config@778580083dcb3b0ac6c1ac3bbcb902794b9e0acc # v1.0.0
+        uses: logica-oss/actions-toolkit/sync-agent-config@bd5176306ecb8bed535720b6101fadd3cc14a73e # v1.1.0
       - name: Autofix Text
-        uses: logica-oss/actions-toolkit/autofix-text@778580083dcb3b0ac6c1ac3bbcb902794b9e0acc # v1.0.0
+        uses: logica-oss/actions-toolkit/autofix-text@bd5176306ecb8bed535720b6101fadd3cc14a73e # v1.1.0

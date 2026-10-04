@@ -1,0 +1,16 @@
+version: 2
+
+project_name: synac
+
+builds:
+  - id: synac
+    main: ./cmd/synac
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+
+archives:
+  - id: synac
+    ids: [synac]
+
+changelog:
+  use: github

@@ -5,23 +5,12 @@ project_name: synac
 builds:
   - id: synac
     main: ./cmd/synac
-    binary: synac
     goos: [linux, darwin, windows]
     goarch: [amd64, arm64]
-    ldflags:
-      - "-s -w -X main.version={{ .Version }}"
 
 archives:
   - id: synac
     ids: [synac]
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-
-checksum:
-  name_template: "checksums.txt"
 
 changelog:
-  sort: asc
   use: github
-
-release:
-  draft: false

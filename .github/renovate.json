@@ -1,0 +1,10 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 0,
+  "labels": ["dependencies"],
+  "minimumReleaseAge": "3 days",
+  "rebaseWhen": "conflicted",
+  "gitIgnoredAuthors": ["114827586+autofix-ci[bot]@users.noreply.github.com"]
+}

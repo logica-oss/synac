@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  schedule:
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: read
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Create release
+        id: release
+        uses: logica-oss/actions-toolkit/release@778580083dcb3b0ac6c1ac3bbcb902794b9e0acc # v1.0.0
+        with:
+          initial-version: v0.1.0
+          # TODO: Switch to tag-only (`create-release: "false"`) and add a
+          # GoReleaser job once actions-toolkit supports it.

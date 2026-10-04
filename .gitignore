@@ -1,0 +1,26 @@
+# Logs
+logs
+*.log
+
+# Go build output
+bin/
+dist/
+
+# Go test artifacts
+coverage.out
+coverage.html
+*.test
+*.out
+
+# Go module cache is not vendored
+vendor/
+
+# dotenv environment variable files
+.env
+.env.*
+
+# macOS
+.DS_Store
+
+# vscode setting folder
+.vscode/

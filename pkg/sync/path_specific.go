@@ -97,7 +97,10 @@ func (r *runner) convertInstruction(srcDir, srcDirRel, destDir, destDirRel, sour
 		return "", errors.WithStack(fmt.Errorf("read %s: %w", name, err))
 	}
 
-	in := parseInstruction(name, string(data), source, filepath.ToSlash(filepath.Join(srcDirRel, name)))
+	in, err := parseInstruction(name, string(data), source, filepath.ToSlash(filepath.Join(srcDirRel, name)))
+	if err != nil {
+		return "", err
+	}
 
 	destName := in.Name()
 	destPath := filepath.Join(destDir, destName)
@@ -110,22 +113,32 @@ func (r *runner) convertInstruction(srcDir, srcDirRel, destDir, destDirRel, sour
 	return destRel, nil
 }
 
-func parseInstruction(name, content, source, relSrc string) instruction {
+func parseInstruction(name, content, source, relSrc string) (instruction, error) {
 	if source == config.SourceClaude {
+		globs, err := md.ParsePaths(content)
+		if err != nil {
+			return nil, errors.WithStack(fmt.Errorf("parse %s: %w", name, err))
+		}
+
 		return githubInstruction{
 			base:   strings.TrimSuffix(name, ".md"),
-			globs:  md.ParsePaths(content),
+			globs:  globs,
 			body:   md.StripGeneratedHeader(md.Body(content)),
 			relSrc: relSrc,
-		}
+		}, nil
+	}
+
+	applyTo, err := md.ParseApplyTo(content)
+	if err != nil {
+		return nil, errors.WithStack(fmt.Errorf("parse %s: %w", name, err))
 	}
 
 	return claudeRule{
 		base:   strings.TrimSuffix(name, ".instructions.md"),
-		globs:  md.SplitGlobs(md.ParseApplyTo(content)),
+		globs:  md.SplitGlobs(applyTo),
 		body:   md.StripGeneratedHeader(md.Body(content)),
 		relSrc: relSrc,
-	}
+	}, nil
 }
 
 type instruction interface {

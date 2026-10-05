@@ -34,6 +34,12 @@ func (r *runner) syncProjectWide(source string) error {
 	body := md.StripGeneratedHeader(md.Body(content))
 	out := fmt.Sprintf(projectWideHeader+"\n\n", srcRel, srcRel) + body
 
+	if srcInfo, srcErr := os.Stat(src); srcErr == nil {
+		if destInfo, destErr := os.Stat(dest); destErr == nil && os.SameFile(srcInfo, destInfo) {
+			return errors.WithStack(fmt.Errorf("project-wide source and destination are the same file: %s", srcRel))
+		}
+	}
+
 	if err := r.applier.WriteFile(dest, destRel, []byte(out), 0o644); err != nil {
 		return err
 	}

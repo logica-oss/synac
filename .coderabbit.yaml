@@ -25,3 +25,7 @@ reviews:
       instructions: "Keep sync writes direct without staging directories or atomic rename; partial-output risk on conversion failure is accepted for simplicity."
     - path: "pkg/config/load.go"
       instructions: "A missing explicitly configured file must surface as a read error; do not suggest ignoring it as a missing config."
+    - path: "pkg/md/applyto.go"
+      instructions: "applyTo accepts only a string glob pattern; do not suggest accepting YAML sequences."
+    - path: "pkg/md/paths.go"
+      instructions: "Non-string paths items must surface as a parse error; do not suggest coercing them to strings."

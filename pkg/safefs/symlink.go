@@ -92,9 +92,9 @@ func CheckWithinRoot(root, path, pathRel string) error {
 		target = parent
 	}
 
-	resolved, err := filepath.EvalSymlinks(target)
-	if err != nil {
-		return nil
+	resolved, ok := resolveTarget(target)
+	if !ok {
+		return errors.WithStack(fmt.Errorf("resolve path %s: unable to resolve symlink", filepath.ToSlash(pathRel)))
 	}
 
 	full := resolved

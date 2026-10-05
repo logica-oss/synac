@@ -48,12 +48,13 @@ func unquote(s string, quote byte) (string, bool) {
 		if quote == '"' && c == '\\' && i+1 < len(s) {
 			i++
 			b.WriteByte(s[i])
-
 			continue
 		}
+
 		if c == quote {
 			return b.String(), true
 		}
+
 		b.WriteByte(c)
 	}
 

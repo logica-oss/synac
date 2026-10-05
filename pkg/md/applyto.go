@@ -16,13 +16,35 @@ func ParseApplyTo(content string) (string, error) {
 	}
 
 	var matter struct {
-		ApplyTo string `yaml:"applyTo"`
+		ApplyTo any `yaml:"applyTo"`
 	}
 	if err := yaml.Unmarshal([]byte(fm), &matter); err != nil {
 		return "", errors.WithStack(fmt.Errorf("parse applyTo: %w", err))
 	}
 
-	return matter.ApplyTo, nil
+	switch v := matter.ApplyTo.(type) {
+	case nil:
+		return "", nil
+
+	case string:
+		return v, nil
+
+	case []any:
+		var out []string
+		for _, item := range v {
+			s, ok := item.(string)
+			if !ok {
+				return "", errors.WithStack(fmt.Errorf("parse applyTo: unexpected item type %T", item))
+			}
+			if s != "" {
+				out = append(out, s)
+			}
+		}
+		return strings.Join(out, ", "), nil
+
+	default:
+		return "", errors.WithStack(fmt.Errorf("parse applyTo: unexpected type %T", v))
+	}
 }
 
 // SplitGlobs splits a comma-separated glob list respecting braces.

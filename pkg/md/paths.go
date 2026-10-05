@@ -79,7 +79,11 @@ func extractPaths(v any) ([]string, error) {
 	case []any:
 		var out []string
 		for _, item := range v {
-			if s, ok := item.(string); ok && s != "" {
+			s, ok := item.(string)
+			if !ok {
+				return nil, errors.WithStack(fmt.Errorf("parse paths: unexpected item type %T", item))
+			}
+			if s != "" {
 				out = append(out, s)
 			}
 		}

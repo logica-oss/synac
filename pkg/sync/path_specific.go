@@ -10,6 +10,7 @@ import (
 	"github.com/k1LoW/errors"
 	"github.com/logica-oss/synac/pkg/config"
 	"github.com/logica-oss/synac/pkg/md"
+	"github.com/logica-oss/synac/pkg/safefs"
 )
 
 const pathSpecificHeader = "<!-- DO NOT EDIT: Generated from /%s. Edit /%s instead. -->"
@@ -32,10 +33,8 @@ func (r *runner) syncPathSpecific(source string) error {
 		return err
 	}
 
-	if srcInfo, srcErr := os.Stat(srcDir); srcErr == nil {
-		if destInfo, destErr := os.Stat(destDir); destErr == nil && os.SameFile(srcInfo, destInfo) {
-			return errors.WithStack(fmt.Errorf("path-specific source and destination are the same directory: %s", srcDirRel))
-		}
+	if safefs.SameFile(srcDir, destDir) {
+		return errors.WithStack(fmt.Errorf("path-specific source and destination are the same directory: %s", srcDirRel))
 	}
 
 	if err := r.applier.RemoveAll(destDir, destDirRel); err != nil {

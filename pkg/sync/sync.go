@@ -20,10 +20,16 @@ func Run(log *slog.Logger, cfg config.Config) error {
 		return err
 	}
 
+	applier, err := safefs.NewApplier(log, cfg.Root, cfg.DryRun)
+	if err != nil {
+		return err
+	}
+	defer applier.Close()
+
 	return (&runner{
 		log:     log,
 		root:    cfg.Root,
-		applier: safefs.NewApplier(log, cfg.Root, cfg.DryRun),
+		applier: applier,
 	}).run(cfg)
 }
 

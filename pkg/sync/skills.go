@@ -32,7 +32,7 @@ func (r *runner) syncSkills(source string) error {
 		return err
 	}
 
-	if err := safefs.CheckWithinRoot(r.root, srcDir, srcDirRel); err != nil {
+	if err := r.applier.Within(srcDirRel); err != nil {
 		return err
 	}
 
@@ -42,10 +42,8 @@ func (r *runner) syncSkills(source string) error {
 		}
 	}
 
-	if srcInfo, srcErr := os.Stat(srcDir); srcErr == nil {
-		if destInfo, destErr := os.Stat(destDir); destErr == nil && os.SameFile(srcInfo, destInfo) {
-			return errors.WithStack(fmt.Errorf("skills source and destination are the same directory: %s", srcDirRel))
-		}
+	if safefs.SameFile(srcDir, destDir) {
+		return errors.WithStack(fmt.Errorf("skills source and destination are the same directory: %s", srcDirRel))
 	}
 
 	if err := r.applier.RemoveAll(destDir, destDirRel); err != nil {

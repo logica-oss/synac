@@ -74,7 +74,7 @@ func extractPaths(v any) ([]string, error) {
 		if v == "" {
 			return nil, nil
 		}
-		return []string{v}, nil
+		return splitGlobs(v), nil
 
 	case []any:
 		var out []string
@@ -83,10 +83,12 @@ func extractPaths(v any) ([]string, error) {
 			if !ok {
 				return nil, errors.WithStack(fmt.Errorf("parse paths: unexpected item type %T", item))
 			}
+
 			if s != "" {
 				out = append(out, s)
 			}
 		}
+
 		return out, nil
 
 	default:

@@ -128,14 +128,14 @@ func parseInstruction(name, content, source, relSrc string) (instruction, error)
 		}, nil
 	}
 
-	applyTo, err := md.ParseApplyTo(content)
+	globs, err := md.ParseApplyTo(content)
 	if err != nil {
 		return nil, errors.WithStack(fmt.Errorf("parse %s: %w", name, err))
 	}
 
 	return claudeRule{
 		base:   strings.TrimSuffix(name, ".instructions.md"),
-		globs:  md.SplitGlobs(applyTo),
+		globs:  globs,
 		body:   md.StripGeneratedHeader(md.Body(content)),
 		relSrc: relSrc,
 	}, nil

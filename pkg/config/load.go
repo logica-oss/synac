@@ -27,8 +27,9 @@ func Load(args []string) (Config, error) {
 
 	rootFlag, _ := fs.GetString(keyRoot)
 	explicitRoot := firstNonEmpty(rootFlag, os.Getenv("SYNAC_ROOT"))
+	rootExplicit := explicitRoot != ""
+
 	searchRoot := explicitRoot
-	rootExplicit := searchRoot != ""
 	if searchRoot == "" {
 		searchRoot = detectRoot()
 	}

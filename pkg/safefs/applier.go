@@ -45,7 +45,7 @@ func (a *Applier) Within(destRel string) error {
 	}
 
 	if fi.Mode()&fs.ModeSymlink != 0 {
-		return errors.WithStack(fmt.Errorf("validate dest %s: symlinked source not allowed", destRel))
+		return errors.WithStack(fmt.Errorf("validate dest %s: symlinked path not allowed", destRel))
 	}
 
 	return nil

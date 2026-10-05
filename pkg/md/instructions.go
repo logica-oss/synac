@@ -1,6 +1,7 @@
 package md
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -41,12 +42,64 @@ func unquote(s string, quote byte) (string, bool) {
 		return "", false
 	}
 
-	end := strings.Index(s[1:], string(quote))
-	if end == -1 {
+	if quote == '"' {
+		for i := 1; i < len(s); i++ {
+			if s[i] == '\\' && i+1 < len(s) {
+				i++
+
+				continue
+			}
+			if s[i] == '"' {
+				if decoded, err := strconv.Unquote(s[:i+1]); err == nil {
+					return decoded, true
+				}
+
+				return s[1:i], true
+			}
+		}
+
 		return "", false
 	}
 
-	return s[1 : 1+end], true
+	for i := 1; i < len(s); i++ {
+		if s[i] != '\'' {
+			continue
+		}
+		if i+1 < len(s) && s[i+1] == '\'' {
+			i++
+
+			continue
+		}
+
+		return strings.ReplaceAll(s[1:i], "''", "'"), true
+	}
+
+	return "", false
+}
+
+func unquoteYAMLValue(s string) string {
+	s = strings.TrimSpace(s)
+	if len(s) >= 2 && s[0] == '"' {
+		for i := 1; i < len(s); i++ {
+			if s[i] == '\\' && i+1 < len(s) {
+				i++
+
+				continue
+			}
+			if s[i] == '"' {
+				if decoded, err := strconv.Unquote(s[:i+1]); err == nil {
+					return decoded
+				}
+
+				break
+			}
+		}
+	}
+	if len(s) >= 2 && s[0] == '\'' && s[len(s)-1] == '\'' {
+		return strings.ReplaceAll(s[1:len(s)-1], "''", "'")
+	}
+
+	return strings.Trim(s, "\"'")
 }
 
 func SplitGlobs(applyTo string) []string {
@@ -147,20 +200,20 @@ func ParsePaths(content string) []string {
 			inPaths = true
 			continue
 		}
-		if strings.HasPrefix(t, "paths:") {
-			rest := strings.TrimSpace(strings.TrimPrefix(t, "paths:"))
+
+		if after, ok := strings.CutPrefix(t, "paths:"); ok {
+			rest := strings.TrimSpace(after)
 			if rest == "" || strings.HasPrefix(rest, "#") {
 				inPaths = true
 
 				continue
 			}
-			if strings.HasPrefix(rest, "[") {
-				inner := strings.TrimPrefix(rest, "[")
+			if inner, ok := strings.CutPrefix(rest, "["); ok {
 				if end := strings.LastIndex(inner, "]"); end != -1 {
 					inner = inner[:end]
 				}
 				for _, g := range SplitGlobs(inner) {
-					g = strings.TrimSpace(strings.Trim(strings.TrimSpace(g), "\"'"))
+					g = unquoteYAMLValue(g)
 					if g != "" {
 						out = append(out, g)
 					}
@@ -169,7 +222,7 @@ func ParsePaths(content string) []string {
 				if idx := strings.Index(rest, " #"); idx != -1 {
 					rest = strings.TrimSpace(rest[:idx])
 				}
-				rest = strings.TrimSpace(strings.Trim(strings.TrimSpace(rest), "\"'"))
+				rest = unquoteYAMLValue(rest)
 				if rest != "" && !strings.HasPrefix(rest, "#") {
 					out = append(out, rest)
 				}
@@ -177,6 +230,7 @@ func ParsePaths(content string) []string {
 
 			continue
 		}
+
 		indented := len(line) > 0 && (line[0] == ' ' || line[0] == '\t')
 		if !indented && !strings.HasPrefix(t, "-") && strings.Contains(t, ":") {
 			inPaths = false
@@ -190,7 +244,7 @@ func ParsePaths(content string) []string {
 			continue
 		}
 
-		t = strings.TrimSpace(strings.Trim(strings.TrimSpace(strings.TrimPrefix(t, "-")), "\"'"))
+		t = unquoteYAMLValue(strings.TrimPrefix(t, "-"))
 		if t != "" {
 			out = append(out, t)
 		}

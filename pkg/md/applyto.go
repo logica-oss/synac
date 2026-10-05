@@ -42,12 +42,22 @@ func unquote(s string, quote byte) (string, bool) {
 		return "", false
 	}
 
-	end := strings.Index(s[1:], string(quote))
-	if end == -1 {
-		return "", false
+	var b strings.Builder
+	for i := 1; i < len(s); i++ {
+		c := s[i]
+		if quote == '"' && c == '\\' && i+1 < len(s) {
+			i++
+			b.WriteByte(s[i])
+
+			continue
+		}
+		if c == quote {
+			return b.String(), true
+		}
+		b.WriteByte(c)
 	}
 
-	return s[1 : 1+end], true
+	return "", false
 }
 
 // SplitGlobs splits a comma-separated glob list respecting braces.

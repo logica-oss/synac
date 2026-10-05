@@ -70,6 +70,45 @@ func resolveTarget(path string) (string, bool) {
 	return filepath.Clean(link), true
 }
 
+// CheckWithinRoot rejects paths escaping root through symlinks.
+func CheckWithinRoot(root, path, pathRel string) error {
+	rootResolved := root
+	if resolved, err := filepath.EvalSymlinks(root); err == nil {
+		rootResolved = resolved
+	}
+
+	target := path
+	var rest []string
+	for {
+		if _, err := os.Lstat(target); err == nil {
+			break
+		}
+
+		parent := filepath.Dir(target)
+		if parent == target {
+			return nil
+		}
+		rest = append([]string{filepath.Base(target)}, rest...)
+		target = parent
+	}
+
+	resolved, err := filepath.EvalSymlinks(target)
+	if err != nil {
+		return nil
+	}
+
+	full := resolved
+	for _, p := range rest {
+		full = filepath.Join(full, p)
+	}
+
+	if !isWithin(filepath.Clean(full), root, rootResolved) {
+		return errors.WithStack(fmt.Errorf("path escapes repository root: %s", filepath.ToSlash(pathRel)))
+	}
+
+	return nil
+}
+
 func isWithin(target, allowed, allowedResolved string) bool {
 	if target == allowed || target == allowedResolved {
 		return true

@@ -14,16 +14,21 @@ import (
 // Applier writes filesystem changes, honoring dry-run.
 type Applier struct {
 	log    *slog.Logger
+	root   string
 	dryRun bool
 }
 
 // NewApplier creates an Applier.
-func NewApplier(log *slog.Logger, dryRun bool) *Applier {
-	return &Applier{log: log, dryRun: dryRun}
+func NewApplier(log *slog.Logger, root string, dryRun bool) *Applier {
+	return &Applier{log: log, root: root, dryRun: dryRun}
 }
 
 // WriteFile writes data to dest, creating parents as needed.
 func (a *Applier) WriteFile(dest, destRel string, data []byte, perm fs.FileMode) error {
+	if err := CheckWithinRoot(a.root, dest, destRel); err != nil {
+		return err
+	}
+
 	if a.dryRun {
 		a.log.Info("dry-run: would write", "path", destRel)
 		return nil
@@ -42,6 +47,10 @@ func (a *Applier) WriteFile(dest, destRel string, data []byte, perm fs.FileMode)
 
 // MkdirAll creates dest and parents.
 func (a *Applier) MkdirAll(dest, destRel string, perm fs.FileMode) error {
+	if err := CheckWithinRoot(a.root, dest, destRel); err != nil {
+		return err
+	}
+
 	if a.dryRun {
 		a.log.Info("dry-run: would create dir", "path", destRel)
 		return nil
@@ -56,6 +65,10 @@ func (a *Applier) MkdirAll(dest, destRel string, perm fs.FileMode) error {
 
 // RemoveAll removes dest.
 func (a *Applier) RemoveAll(dest, destRel string) error {
+	if err := CheckWithinRoot(a.root, dest, destRel); err != nil {
+		return err
+	}
+
 	if a.dryRun {
 		a.log.Info("dry-run: would remove", "path", destRel)
 		return nil
@@ -70,6 +83,10 @@ func (a *Applier) RemoveAll(dest, destRel string) error {
 
 // CopyDir copies src to dest, keeping symlinks as links.
 func (a *Applier) CopyDir(src, dest, destRel string) error {
+	if err := CheckWithinRoot(a.root, dest, destRel); err != nil {
+		return err
+	}
+
 	if a.dryRun {
 		a.log.Info("dry-run: would copy dir", "path", destRel)
 		return nil

@@ -10,7 +10,8 @@ import (
 	"github.com/k1LoW/errors"
 )
 
-func validate(cfg Config) error {
+// Validate checks source selections and log format.
+func Validate(cfg Config) error {
 	if cfg.LogFormat != logFormatConsole && cfg.LogFormat != logFormatJSON {
 		return errors.WithStack(fmt.Errorf("invalid log-format %q: must be %q or %q", cfg.LogFormat, logFormatConsole, logFormatJSON))
 	}
@@ -41,10 +42,13 @@ func validate(cfg Config) error {
 
 var configFileNames = []string{".synac.yaml", ".synac.json"}
 
-func preferredConfigFile(root string) string {
+func preferredConfigFile(root string, rootOnly bool) string {
 	dirs := []string{"."}
 	if root != "" {
 		dirs = []string{root, "."}
+		if rootOnly {
+			dirs = []string{root}
+		}
 	}
 
 	for _, dir := range dirs {
@@ -77,6 +81,14 @@ func resolveRoot(root string) (string, error) {
 	abs, err := filepath.Abs(root)
 	if err != nil {
 		return "", errors.WithStack(fmt.Errorf("resolve root: %w", err))
+	}
+
+	st, err := os.Stat(abs)
+	if err != nil {
+		return "", errors.WithStack(fmt.Errorf("resolve root: %w", err))
+	}
+	if !st.IsDir() {
+		return "", errors.WithStack(fmt.Errorf("resolve root %q: not a directory", root))
 	}
 
 	return abs, nil

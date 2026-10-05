@@ -89,7 +89,7 @@ func ParsePaths(content string) []string {
 			continue
 		}
 
-		t = strings.TrimSpace(strings.Trim(strings.TrimSpace(strings.TrimPrefix(t, "-")), "\"'"))
+		t = unquoteListItem(strings.TrimPrefix(t, "-"))
 		if t != "" {
 			out = append(out, t)
 		}
@@ -106,7 +106,7 @@ func parseInlinePaths(rest string) []string {
 
 		var out []string
 		for _, g := range SplitGlobs(inner) {
-			if g = strings.TrimSpace(strings.Trim(strings.TrimSpace(g), "\"'")); g != "" {
+			if g = unquoteListItem(g); g != "" {
 				out = append(out, g)
 			}
 		}
@@ -117,9 +117,20 @@ func parseInlinePaths(rest string) []string {
 	if idx := strings.Index(rest, " #"); idx != -1 {
 		rest = strings.TrimSpace(rest[:idx])
 	}
-	if rest = strings.TrimSpace(strings.Trim(strings.TrimSpace(rest), "\"'")); rest == "" || strings.HasPrefix(rest, "#") {
+	if rest = unquoteListItem(rest); rest == "" || strings.HasPrefix(rest, "#") {
 		return nil
 	}
 
 	return []string{rest}
+}
+
+func unquoteListItem(s string) string {
+	s = strings.TrimSpace(s)
+	if len(s) >= 2 && (s[0] == '"' || s[0] == '\'') {
+		if v, ok := unquote(s, s[0]); ok {
+			return v
+		}
+	}
+
+	return strings.Trim(s, "\"'")
 }

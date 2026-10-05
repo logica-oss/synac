@@ -16,10 +16,14 @@ type runner struct {
 
 // Run synchronizes all agent configs.
 func Run(log *slog.Logger, cfg config.Config) error {
+	if err := config.Validate(cfg); err != nil {
+		return err
+	}
+
 	return (&runner{
 		log:     log,
 		root:    cfg.Root,
-		applier: safefs.NewApplier(log, cfg.DryRun),
+		applier: safefs.NewApplier(log, cfg.Root, cfg.DryRun),
 	}).run(cfg)
 }
 

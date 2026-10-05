@@ -25,5 +25,3 @@ reviews:
       instructions: "Keep sync writes direct without staging directories or atomic rename; partial-output risk on conversion failure is accepted for simplicity."
     - path: "pkg/config/load.go"
       instructions: "A missing explicitly configured file must surface as a read error; do not suggest ignoring it as a missing config."
-    - path: "pkg/md/instructions.go"
-      instructions: "Keep quote handling simple without strconv.Unquote decoding; escaped quotes and backslashes in glob values are accepted as-is for simplicity."

@@ -27,8 +27,10 @@ func Load(args []string) (Config, error) {
 
 	rootFlag, _ := fs.GetString(keyRoot)
 	searchRoot := rootFlag
+	rootExplicit := searchRoot != ""
 	if searchRoot == "" {
 		searchRoot = os.Getenv("SYNAC_ROOT")
+		rootExplicit = searchRoot != ""
 	}
 	if searchRoot == "" {
 		searchRoot = detectRoot()
@@ -43,9 +45,11 @@ func Load(args []string) (Config, error) {
 		if searchRoot != "" {
 			v.AddConfigPath(searchRoot)
 		}
-		v.AddConfigPath(".")
+		if !rootExplicit {
+			v.AddConfigPath(".")
+		}
 
-		if explicit := preferredConfigFile(searchRoot); explicit != "" {
+		if explicit := preferredConfigFile(searchRoot, rootExplicit); explicit != "" {
 			v.SetConfigFile(explicit)
 		}
 	}
@@ -80,7 +84,7 @@ func Load(args []string) (Config, error) {
 	}
 	cfg.Root = root
 
-	if err := validate(cfg); err != nil {
+	if err := Validate(cfg); err != nil {
 		return Config{}, err
 	}
 

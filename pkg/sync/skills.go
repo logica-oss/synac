@@ -135,7 +135,7 @@ func (r *runner) rewriteSkillHeader(srcDirRel, destDirRel, name, srcSkill, destS
 		b.WriteString("\n\n")
 	}
 	fmt.Fprintf(&b, "<!-- DO NOT EDIT: Generated from /%s/%s. Edit /%s/%s instead. -->\n\n", srcDirRel, name, srcDirRel, name)
-	b.WriteString(md.Body(content))
+	b.WriteString(md.StripGeneratedHeader(md.Body(content)))
 
 	destRel := filepath.ToSlash(filepath.Join(destDirRel, name, "SKILL.md"))
 

@@ -6,6 +6,7 @@ import (
 
 const delimiter = "---"
 
+// SplitFrontmatter separates frontmatter from the body.
 func SplitFrontmatter(content string) (frontmatter, body string, ok bool) {
 	content = strings.ReplaceAll(content, "\r", "")
 
@@ -28,6 +29,7 @@ func SplitFrontmatter(content string) (frontmatter, body string, ok bool) {
 	return strings.Join(lines[:closing+1], "\n"), strings.Join(lines[closing+1:], "\n"), true
 }
 
+// Body returns the document body without frontmatter.
 func Body(content string) string {
 	_, body, ok := SplitFrontmatter(content)
 	if !ok {
@@ -37,6 +39,7 @@ func Body(content string) string {
 	return trimLeadingBlankLines(body)
 }
 
+// StripGeneratedHeader removes a leading generated header.
 func StripGeneratedHeader(body string) string {
 	rest := trimLeadingBlankLines(body)
 

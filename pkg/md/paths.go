@@ -10,6 +10,7 @@ func escapeYAMLDoubleQuoted(s string) string {
 	return strings.ReplaceAll(s, "\"", "\\\"")
 }
 
+// BuildPathsFrontmatter builds a paths frontmatter block.
 func BuildPathsFrontmatter(globs []string) string {
 	var b strings.Builder
 
@@ -25,6 +26,7 @@ func BuildPathsFrontmatter(globs []string) string {
 	return b.String()
 }
 
+// BuildApplyToFrontmatter builds an applyTo frontmatter block.
 func BuildApplyToFrontmatter(globs []string) string {
 	escaped := make([]string, len(globs))
 	for i, g := range globs {
@@ -42,6 +44,7 @@ func BuildApplyToFrontmatter(globs []string) string {
 	return b.String()
 }
 
+// ParsePaths extracts the paths list from frontmatter.
 func ParsePaths(content string) []string {
 	fm, _, ok := SplitFrontmatter(content)
 	if !ok {

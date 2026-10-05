@@ -11,15 +11,18 @@ import (
 	"github.com/otiai10/copy"
 )
 
+// Applier writes filesystem changes, honoring dry-run.
 type Applier struct {
 	log    *slog.Logger
 	dryRun bool
 }
 
+// NewApplier creates an Applier.
 func NewApplier(log *slog.Logger, dryRun bool) *Applier {
 	return &Applier{log: log, dryRun: dryRun}
 }
 
+// WriteFile writes data to dest, creating parents as needed.
 func (a *Applier) WriteFile(dest, destRel string, data []byte, perm fs.FileMode) error {
 	if a.dryRun {
 		a.log.Info("dry-run: would write", "path", destRel)
@@ -37,6 +40,7 @@ func (a *Applier) WriteFile(dest, destRel string, data []byte, perm fs.FileMode)
 	return nil
 }
 
+// MkdirAll creates dest and parents.
 func (a *Applier) MkdirAll(dest, destRel string, perm fs.FileMode) error {
 	if a.dryRun {
 		a.log.Info("dry-run: would create dir", "path", destRel)
@@ -50,6 +54,7 @@ func (a *Applier) MkdirAll(dest, destRel string, perm fs.FileMode) error {
 	return nil
 }
 
+// RemoveAll removes dest.
 func (a *Applier) RemoveAll(dest, destRel string) error {
 	if a.dryRun {
 		a.log.Info("dry-run: would remove", "path", destRel)
@@ -63,6 +68,7 @@ func (a *Applier) RemoveAll(dest, destRel string) error {
 	return nil
 }
 
+// CopyDir copies src to dest, keeping symlinks as links.
 func (a *Applier) CopyDir(src, dest, destRel string) error {
 	if a.dryRun {
 		a.log.Info("dry-run: would copy dir", "path", destRel)

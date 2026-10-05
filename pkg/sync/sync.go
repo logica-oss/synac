@@ -1,4 +1,4 @@
-// Package sync implements the agent config synchronization logic.
+// Package sync synchronizes agent configs.
 package sync
 
 import (
@@ -14,6 +14,7 @@ type runner struct {
 	applier *safefs.Applier
 }
 
+// Run synchronizes all agent configs.
 func Run(log *slog.Logger, cfg config.Config) error {
 	return (&runner{
 		log:     log,

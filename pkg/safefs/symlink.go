@@ -10,6 +10,7 @@ import (
 	"github.com/k1LoW/errors"
 )
 
+// CheckSymlinks rejects symlinks escaping the source directory.
 func CheckSymlinks(root, srcDirRel, srcSkill string) error {
 	allowed, allowedResolved := resolveAllowed(root, srcDirRel)
 

@@ -1,11 +1,4 @@
-// Package config manages synac configuration via viper.
-//
-// Configuration precedence is flag > environment > config file > default.
-// Config files are searched as .synac.yaml (preferred) then .synac.json
-// in the repository root. YAML is recommended for human editing because
-// it supports comments, JSON is supported for machine generation.
-// Environment variables use the SYNAC_ prefix, for example
-// SYNAC_DRY_RUN or SYNAC_PROJECT_WIDE_SOURCE.
+// Package config loads synac settings.
 package config
 
 import (
@@ -27,9 +20,9 @@ const (
 	logFormatJSON    = "json"
 )
 
+// Config holds synac settings.
 type Config struct {
-	// Root is the repository root. It is resolved from --root, SYNAC_ROOT,
-	// or auto-detection, never from the config file.
+	// Root stays out of the config file to keep relative resolution unambiguous.
 	Root               string `mapstructure:"-"`
 	DryRun             bool   `mapstructure:"dry-run"`
 	LogFormat          string `mapstructure:"log-format"`

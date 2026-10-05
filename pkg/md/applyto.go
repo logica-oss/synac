@@ -4,6 +4,7 @@ import (
 	"strings"
 )
 
+// ParseApplyTo extracts the applyTo value from frontmatter.
 func ParseApplyTo(content string) string {
 	fm, _, ok := SplitFrontmatter(content)
 	if !ok {
@@ -49,6 +50,7 @@ func unquote(s string, quote byte) (string, bool) {
 	return s[1 : 1+end], true
 }
 
+// SplitGlobs splits a comma-separated glob list respecting braces.
 func SplitGlobs(applyTo string) []string {
 	if strings.TrimSpace(applyTo) == "" {
 		return nil

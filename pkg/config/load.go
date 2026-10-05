@@ -11,6 +11,7 @@ import (
 
 var envReplacer = strings.NewReplacer(".", "_", "-", "_")
 
+// Load parses flags, environment, and config file into a Config.
 func Load(args []string) (Config, error) {
 	fs := flags()
 	if err := fs.Parse(args); err != nil {

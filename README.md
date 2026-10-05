@@ -28,3 +28,14 @@ skills-source: "agents" # agents, claude, or off
 
 Each category selects the copy source. Defaults match the shell behavior.
 `off` skips the category.
+
+## Pitfalls
+
+Quote globs starting with `*` in frontmatter. Bare `**/*.ts` is not valid
+YAML and fails the sync with a parse error.
+
+```yaml
+paths:
+  - "**/*.ts" # good
+  - **/*.ts # bad: parse error
+```

@@ -15,16 +15,20 @@ type runner struct {
 }
 
 // Run synchronizes all agent configs.
-func Run(log *slog.Logger, cfg config.Config) error {
-	if err := config.Validate(cfg); err != nil {
-		return err
+func Run(log *slog.Logger, cfg config.Config) (err error) {
+	if verr := config.Validate(cfg); verr != nil {
+		return verr
 	}
 
 	applier, err := safefs.NewApplier(log, cfg.Root, cfg.DryRun)
 	if err != nil {
 		return err
 	}
-	defer applier.Close()
+	defer func() {
+		if cerr := applier.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
 	return (&runner{
 		log:     log,

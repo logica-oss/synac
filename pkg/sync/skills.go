@@ -27,12 +27,12 @@ func (r *runner) syncSkills(source string) error {
 	srcDir := filepath.Join(r.root, filepath.FromSlash(srcDirRel))
 	destDir := filepath.Join(r.root, filepath.FromSlash(destDirRel))
 
-	skills, err := r.listSkills(srcDirRel, srcDir)
-	if err != nil {
+	if err := r.applier.Within(srcDirRel); err != nil {
 		return err
 	}
 
-	if err := r.applier.Within(srcDirRel); err != nil {
+	skills, err := r.listSkills(srcDirRel, srcDir)
+	if err != nil {
 		return err
 	}
 

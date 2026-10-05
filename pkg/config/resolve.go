@@ -40,6 +40,16 @@ func Validate(cfg Config) error {
 	return nil
 }
 
+func firstNonEmpty(values ...string) string {
+	for _, v := range values {
+		if v != "" {
+			return v
+		}
+	}
+
+	return ""
+}
+
 var configFileNames = []string{".synac.yaml", ".synac.json"}
 
 func preferredConfigFile(root string, rootOnly bool) string {

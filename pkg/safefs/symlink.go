@@ -53,60 +53,40 @@ func resolveTarget(path string) (string, bool) {
 		return target, true
 	}
 
-	link, err := os.Readlink(path)
-	if err != nil {
-		return "", false
-	}
+	const maxHops = 40
+	seen := make(map[string]bool, maxHops)
+	cur := path
 
-	if !filepath.IsAbs(link) {
-		dir := filepath.Dir(path)
-		if resolvedDir, rErr := filepath.EvalSymlinks(dir); rErr == nil {
-			dir = resolvedDir
+	for range maxHops {
+		if seen[cur] {
+			return "", false
+		}
+		seen[cur] = true
+
+		fi, err := os.Lstat(cur)
+		if err != nil {
+			return filepath.Clean(cur), true
+		}
+		if fi.Mode()&fs.ModeSymlink == 0 {
+			if target, err := filepath.EvalSymlinks(cur); err == nil {
+				return target, true
+			}
+
+			return filepath.Clean(cur), true
 		}
 
-		link = filepath.Join(dir, link)
-	}
-
-	return filepath.Clean(link), true
-}
-
-// CheckWithinRoot rejects paths escaping root through symlinks.
-func CheckWithinRoot(root, path, pathRel string) error {
-	rootResolved := root
-	if resolved, err := filepath.EvalSymlinks(root); err == nil {
-		rootResolved = resolved
-	}
-
-	target := path
-	var rest []string
-	for {
-		if _, err := os.Lstat(target); err == nil {
-			break
+		link, err := os.Readlink(cur)
+		if err != nil {
+			return "", false
+		}
+		if !filepath.IsAbs(link) {
+			link = filepath.Join(filepath.Dir(cur), link)
 		}
 
-		parent := filepath.Dir(target)
-		if parent == target {
-			return errors.WithStack(fmt.Errorf("resolve path %s: no existing ancestor", filepath.ToSlash(pathRel)))
-		}
-		rest = append([]string{filepath.Base(target)}, rest...)
-		target = parent
+		cur = filepath.Clean(link)
 	}
 
-	resolved, ok := resolveTarget(target)
-	if !ok {
-		return errors.WithStack(fmt.Errorf("resolve path %s: unable to resolve symlink", filepath.ToSlash(pathRel)))
-	}
-
-	full := resolved
-	for _, p := range rest {
-		full = filepath.Join(full, p)
-	}
-
-	if !isWithin(filepath.Clean(full), root, rootResolved) {
-		return errors.WithStack(fmt.Errorf("path escapes repository root: %s", filepath.ToSlash(pathRel)))
-	}
-
-	return nil
+	return "", false
 }
 
 func isWithin(target, allowed, allowedResolved string) bool {

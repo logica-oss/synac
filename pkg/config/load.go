@@ -26,12 +26,8 @@ func Load(args []string) (Config, error) {
 	setDefaults(v)
 
 	rootFlag, _ := fs.GetString(keyRoot)
-	searchRoot := rootFlag
+	searchRoot := firstNonEmpty(rootFlag, os.Getenv("SYNAC_ROOT"))
 	rootExplicit := searchRoot != ""
-	if searchRoot == "" {
-		searchRoot = os.Getenv("SYNAC_ROOT")
-		rootExplicit = searchRoot != ""
-	}
 	if searchRoot == "" {
 		searchRoot = detectRoot()
 	}
@@ -74,11 +70,7 @@ func Load(args []string) (Config, error) {
 		return Config{}, errors.WithStack(fmt.Errorf("decode config: %w", err))
 	}
 
-	rootValue := rootFlag
-	if rootValue == "" {
-		rootValue = os.Getenv("SYNAC_ROOT")
-	}
-	root, err := resolveRoot(rootValue)
+	root, err := resolveRoot(firstNonEmpty(rootFlag, os.Getenv("SYNAC_ROOT")))
 	if err != nil {
 		return Config{}, err
 	}

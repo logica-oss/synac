@@ -1,6 +1,6 @@
 module github.com/logica-oss/synac
 
-go 1.24
+go 1.25
 
 toolchain go1.27.1
 
@@ -9,7 +9,7 @@ require (
 	github.com/otiai10/copy v1.14.1
 	github.com/spf13/pflag v1.0.10
 	github.com/spf13/viper v1.21.0
-	go.yaml.in/yaml/v3 v3.0.4
+	go.yaml.in/yaml/v3 v3.0.5
 )
 
 require (

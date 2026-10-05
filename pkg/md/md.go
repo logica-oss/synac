@@ -14,7 +14,8 @@ func splitGlobs(applyTo string) []string {
 		out []string
 		cur strings.Builder
 	)
-	depth := 0
+	braceDepth := 0
+	bracketDepth := 0
 
 	flush := func() {
 		if trimmed := strings.TrimSpace(cur.String()); trimmed != "" {
@@ -37,17 +38,29 @@ func splitGlobs(applyTo string) []string {
 
 		switch c {
 		case '{':
-			depth++
+			if bracketDepth == 0 {
+				braceDepth++
+			}
 			cur.WriteByte(c)
 
 		case '}':
-			if depth > 0 {
-				depth--
+			if bracketDepth == 0 && braceDepth > 0 {
+				braceDepth--
+			}
+			cur.WriteByte(c)
+
+		case '[':
+			bracketDepth++
+			cur.WriteByte(c)
+
+		case ']':
+			if bracketDepth > 0 {
+				bracketDepth--
 			}
 			cur.WriteByte(c)
 
 		case ',':
-			if depth == 0 {
+			if braceDepth == 0 && bracketDepth == 0 {
 				flush()
 			} else {
 				cur.WriteByte(c)

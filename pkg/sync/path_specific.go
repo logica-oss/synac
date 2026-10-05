@@ -109,7 +109,7 @@ func parseInstruction(name, content, source, relSrc string) instruction {
 		return githubInstruction{
 			base:   strings.TrimSuffix(name, ".md"),
 			globs:  md.ParsePaths(content),
-			body:   md.Body(content),
+			body:   md.StripGeneratedHeader(md.Body(content)),
 			relSrc: relSrc,
 		}
 	}
@@ -117,7 +117,7 @@ func parseInstruction(name, content, source, relSrc string) instruction {
 	return claudeRule{
 		base:   strings.TrimSuffix(name, ".instructions.md"),
 		globs:  md.SplitGlobs(md.ParseApplyTo(content)),
-		body:   md.Body(content),
+		body:   md.StripGeneratedHeader(md.Body(content)),
 		relSrc: relSrc,
 	}
 }

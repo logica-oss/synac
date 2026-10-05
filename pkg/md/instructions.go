@@ -147,6 +147,36 @@ func ParsePaths(content string) []string {
 			inPaths = true
 			continue
 		}
+		if strings.HasPrefix(t, "paths:") {
+			rest := strings.TrimSpace(strings.TrimPrefix(t, "paths:"))
+			if rest == "" || strings.HasPrefix(rest, "#") {
+				inPaths = true
+
+				continue
+			}
+			if strings.HasPrefix(rest, "[") {
+				inner := strings.TrimPrefix(rest, "[")
+				if end := strings.LastIndex(inner, "]"); end != -1 {
+					inner = inner[:end]
+				}
+				for _, g := range SplitGlobs(inner) {
+					g = strings.TrimSpace(strings.Trim(strings.TrimSpace(g), "\"'"))
+					if g != "" {
+						out = append(out, g)
+					}
+				}
+			} else {
+				if idx := strings.Index(rest, " #"); idx != -1 {
+					rest = strings.TrimSpace(rest[:idx])
+				}
+				rest = strings.TrimSpace(strings.Trim(strings.TrimSpace(rest), "\"'"))
+				if rest != "" && !strings.HasPrefix(rest, "#") {
+					out = append(out, rest)
+				}
+			}
+
+			continue
+		}
 		indented := len(line) > 0 && (line[0] == ' ' || line[0] == '\t')
 		if !indented && !strings.HasPrefix(t, "-") && strings.Contains(t, ":") {
 			inPaths = false

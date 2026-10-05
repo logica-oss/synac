@@ -90,10 +90,6 @@ func (r *runner) copySkill(srcDir, srcDirRel, destDir, destDirRel, name string) 
 	destSkill := filepath.Join(destDir, name)
 	destRel := filepath.ToSlash(filepath.Join(destDirRel, name))
 
-	if err := safefs.CheckSymlinks(r.root, srcDirRel, srcSkill); err != nil {
-		return "", err
-	}
-
 	if err := r.applier.CopyDir(srcSkill, destSkill, destRel); err != nil {
 		return "", errors.WithStack(fmt.Errorf("copy skill %s: %w", name, err))
 	}

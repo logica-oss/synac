@@ -142,16 +142,7 @@ func (g githubInstruction) Body() string {
 	var b strings.Builder
 
 	if len(g.globs) > 0 {
-		escaped := make([]string, len(g.globs))
-		for i, glob := range g.globs {
-			escaped[i] = md.EscapeYAMLDoubleQuoted(glob)
-		}
-
-		b.WriteString("---\n")
-		b.WriteString("applyTo: \"")
-		b.WriteString(strings.Join(escaped, ", "))
-		b.WriteString("\"\n")
-		b.WriteString("---\n")
+		b.WriteString(md.BuildApplyToFrontmatter(g.globs))
 		b.WriteString("\n")
 	}
 	fmt.Fprintf(&b, pathSpecificHeader+"\n\n", g.relSrc, g.relSrc)

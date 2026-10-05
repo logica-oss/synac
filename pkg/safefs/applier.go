@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/k1LoW/errors"
 	"github.com/otiai10/copy"
@@ -35,17 +36,34 @@ func (a *Applier) Close() error {
 
 // Within rejects paths escaping the root.
 func (a *Applier) Within(destRel string) error {
-	fi, err := a.root.Lstat(destRel)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-
-		return errors.WithStack(fmt.Errorf("validate dest %s: %w", destRel, err))
+	if destRel == "." || destRel == "" {
+		return nil
 	}
 
-	if fi.Mode()&fs.ModeSymlink != 0 {
-		return errors.WithStack(fmt.Errorf("validate dest %s: symlinked path not allowed", destRel))
+	prefix := ""
+	for part := range strings.SplitSeq(filepath.ToSlash(destRel), "/") {
+		if part == "" || part == "." {
+			continue
+		}
+
+		if prefix == "" {
+			prefix = part
+		} else {
+			prefix += "/" + part
+		}
+
+		fi, err := a.root.Lstat(prefix)
+		if err != nil {
+			if os.IsNotExist(err) {
+				return nil
+			}
+
+			return errors.WithStack(fmt.Errorf("validate dest %s: %w", destRel, err))
+		}
+
+		if fi.Mode()&fs.ModeSymlink != 0 {
+			return errors.WithStack(fmt.Errorf("validate dest %s: symlinked path not allowed", destRel))
+		}
 	}
 
 	return nil

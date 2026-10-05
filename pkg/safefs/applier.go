@@ -35,12 +35,17 @@ func (a *Applier) Close() error {
 
 // Within rejects paths escaping the root.
 func (a *Applier) Within(destRel string) error {
-	if _, err := a.root.Lstat(destRel); err != nil {
+	fi, err := a.root.Lstat(destRel)
+	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
 		}
 
 		return errors.WithStack(fmt.Errorf("validate dest %s: %w", destRel, err))
+	}
+
+	if fi.Mode()&fs.ModeSymlink != 0 {
+		return errors.WithStack(fmt.Errorf("validate dest %s: symlinked source not allowed", destRel))
 	}
 
 	return nil

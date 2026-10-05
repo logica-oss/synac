@@ -1,7 +1,6 @@
 package md
 
 import (
-	"strconv"
 	"strings"
 )
 
@@ -42,64 +41,12 @@ func unquote(s string, quote byte) (string, bool) {
 		return "", false
 	}
 
-	if quote == '"' {
-		for i := 1; i < len(s); i++ {
-			if s[i] == '\\' && i+1 < len(s) {
-				i++
-
-				continue
-			}
-			if s[i] == '"' {
-				if decoded, err := strconv.Unquote(s[:i+1]); err == nil {
-					return decoded, true
-				}
-
-				return s[1:i], true
-			}
-		}
-
+	end := strings.Index(s[1:], string(quote))
+	if end == -1 {
 		return "", false
 	}
 
-	for i := 1; i < len(s); i++ {
-		if s[i] != '\'' {
-			continue
-		}
-		if i+1 < len(s) && s[i+1] == '\'' {
-			i++
-
-			continue
-		}
-
-		return strings.ReplaceAll(s[1:i], "''", "'"), true
-	}
-
-	return "", false
-}
-
-func unquoteYAMLValue(s string) string {
-	s = strings.TrimSpace(s)
-	if len(s) >= 2 && s[0] == '"' {
-		for i := 1; i < len(s); i++ {
-			if s[i] == '\\' && i+1 < len(s) {
-				i++
-
-				continue
-			}
-			if s[i] == '"' {
-				if decoded, err := strconv.Unquote(s[:i+1]); err == nil {
-					return decoded
-				}
-
-				break
-			}
-		}
-	}
-	if len(s) >= 2 && s[0] == '\'' && s[len(s)-1] == '\'' {
-		return strings.ReplaceAll(s[1:len(s)-1], "''", "'")
-	}
-
-	return strings.Trim(s, "\"'")
+	return s[1 : 1+end], true
 }
 
 func SplitGlobs(applyTo string) []string {
@@ -213,7 +160,7 @@ func ParsePaths(content string) []string {
 					inner = inner[:end]
 				}
 				for _, g := range SplitGlobs(inner) {
-					g = unquoteYAMLValue(g)
+					g = strings.TrimSpace(strings.Trim(strings.TrimSpace(g), "\"'"))
 					if g != "" {
 						out = append(out, g)
 					}
@@ -222,7 +169,7 @@ func ParsePaths(content string) []string {
 				if idx := strings.Index(rest, " #"); idx != -1 {
 					rest = strings.TrimSpace(rest[:idx])
 				}
-				rest = unquoteYAMLValue(rest)
+				rest = strings.TrimSpace(strings.Trim(strings.TrimSpace(rest), "\"'"))
 				if rest != "" && !strings.HasPrefix(rest, "#") {
 					out = append(out, rest)
 				}
@@ -244,7 +191,7 @@ func ParsePaths(content string) []string {
 			continue
 		}
 
-		t = unquoteYAMLValue(strings.TrimPrefix(t, "-"))
+		t = strings.TrimSpace(strings.Trim(strings.TrimSpace(strings.TrimPrefix(t, "-")), "\"'"))
 		if t != "" {
 			out = append(out, t)
 		}

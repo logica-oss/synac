@@ -1,0 +1,96 @@
+package config
+
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+
+	"github.com/k1LoW/errors"
+)
+
+func validate(cfg Config) error {
+	if cfg.LogFormat != logFormatConsole && cfg.LogFormat != logFormatJSON {
+		return errors.WithStack(fmt.Errorf("invalid log-format %q: must be %q or %q", cfg.LogFormat, logFormatConsole, logFormatJSON))
+	}
+
+	switch cfg.ProjectWideSource {
+	case SourceGithub, SourceAgents, SourceOff:
+
+	default:
+		return errors.WithStack(fmt.Errorf("invalid project-wide-source %q: must be github, agents, or off", cfg.ProjectWideSource))
+	}
+
+	switch cfg.PathSpecificSource {
+	case SourceGithub, SourceClaude, SourceOff:
+
+	default:
+		return errors.WithStack(fmt.Errorf("invalid path-specific-source %q: must be github, claude, or off", cfg.PathSpecificSource))
+	}
+
+	switch cfg.SkillsSource {
+	case SourceAgents, SourceClaude, SourceOff:
+
+	default:
+		return errors.WithStack(fmt.Errorf("invalid skills-source %q: must be agents, claude, or off", cfg.SkillsSource))
+	}
+
+	return nil
+}
+
+var configFileNames = []string{".synac.yaml", ".synac.json"}
+
+func preferredConfigFile(root string) string {
+	dirs := []string{"."}
+	if root != "" {
+		dirs = []string{root, "."}
+	}
+
+	for _, dir := range dirs {
+		for _, name := range configFileNames {
+			p := filepath.Join(dir, name)
+
+			if st, err := os.Stat(p); err == nil && !st.IsDir() {
+				return p
+			}
+		}
+	}
+
+	return ""
+}
+
+func resolveRoot(root string) (string, error) {
+	if root == "" {
+		root = detectRoot()
+	}
+
+	if root == "" {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return "", errors.WithStack(fmt.Errorf("resolve root: %w", err))
+		}
+
+		root = cwd
+	}
+
+	abs, err := filepath.Abs(root)
+	if err != nil {
+		return "", errors.WithStack(fmt.Errorf("resolve root: %w", err))
+	}
+
+	return abs, nil
+}
+
+func detectRoot() string {
+	if ws := os.Getenv("GITHUB_WORKSPACE"); ws != "" {
+		return ws
+	}
+
+	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	if err != nil {
+		return ""
+	}
+
+	return strings.TrimSpace(string(out))
+}

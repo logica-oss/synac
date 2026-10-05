@@ -86,7 +86,7 @@ func CheckWithinRoot(root, path, pathRel string) error {
 
 		parent := filepath.Dir(target)
 		if parent == target {
-			return nil
+			return errors.WithStack(fmt.Errorf("resolve path %s: no existing ancestor", filepath.ToSlash(pathRel)))
 		}
 		rest = append([]string{filepath.Base(target)}, rest...)
 		target = parent

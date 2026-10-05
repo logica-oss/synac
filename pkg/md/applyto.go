@@ -1,64 +1,28 @@
 package md
 
 import (
+	"fmt"
 	"strings"
+
+	"github.com/k1LoW/errors"
+	"go.yaml.in/yaml/v3"
 )
 
 // ParseApplyTo extracts the applyTo value from frontmatter.
-func ParseApplyTo(content string) string {
+func ParseApplyTo(content string) (string, error) {
 	fm, _, ok := SplitFrontmatter(content)
 	if !ok {
-		return ""
+		return "", nil
 	}
 
-	for line := range strings.Lines(fm) {
-		if !strings.HasPrefix(line, "applyTo:") {
-			continue
-		}
-
-		rest := strings.TrimRight(strings.TrimSpace(strings.TrimPrefix(line, "applyTo:")), "\n")
-
-		if v, ok := unquote(rest, '"'); ok {
-			return v
-		}
-		if v, ok := unquote(rest, '\''); ok {
-			return v
-		}
-
-		trimmed := strings.Trim(strings.TrimSpace(strings.Trim(rest, "\"'")), "\"'")
-
-		if idx := strings.Index(trimmed, " #"); idx != -1 {
-			trimmed = strings.TrimSpace(trimmed[:idx])
-		}
-
-		return strings.Trim(trimmed, "\"'")
+	var matter struct {
+		ApplyTo string `yaml:"applyTo"`
+	}
+	if err := yaml.Unmarshal([]byte(fm), &matter); err != nil {
+		return "", errors.WithStack(fmt.Errorf("parse applyTo: %w", err))
 	}
 
-	return ""
-}
-
-func unquote(s string, quote byte) (string, bool) {
-	if len(s) < 2 || s[0] != quote {
-		return "", false
-	}
-
-	var b strings.Builder
-	for i := 1; i < len(s); i++ {
-		c := s[i]
-		if quote == '"' && c == '\\' && i+1 < len(s) {
-			i++
-			b.WriteByte(s[i])
-			continue
-		}
-
-		if c == quote {
-			return b.String(), true
-		}
-
-		b.WriteByte(c)
-	}
-
-	return "", false
+	return matter.ApplyTo, nil
 }
 
 // SplitGlobs splits a comma-separated glob list respecting braces.

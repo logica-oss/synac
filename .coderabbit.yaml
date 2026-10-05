@@ -15,3 +15,13 @@ reviews:
     ignore_usernames:
       - "renovate[bot]"
       - "mergify[bot]"
+
+  path_instructions:
+    - path: "pkg/sync/skills.go"
+      instructions: "Removing the destination when the skills source directory is missing is intentional: deletions are part of the sync. Do not suggest returning early before RemoveAll."
+    - path: "pkg/sync/path_specific.go"
+      instructions: "Removing the destination when the path-specific source directory is missing is intentional: deletions are part of the sync. Do not suggest returning early before RemoveAll."
+    - path: "pkg/sync/*.go"
+      instructions: "Keep sync writes direct without staging directories or atomic rename; partial-output risk on conversion failure is accepted for simplicity."
+    - path: "pkg/config/load.go"
+      instructions: "A missing explicitly configured file must surface as a read error; do not suggest ignoring it as a missing config."

@@ -11,18 +11,18 @@ import (
 	"github.com/otiai10/copy"
 )
 
-type Writer struct {
+type Applier struct {
 	log    *slog.Logger
 	dryRun bool
 }
 
-func NewWriter(log *slog.Logger, dryRun bool) *Writer {
-	return &Writer{log: log, dryRun: dryRun}
+func NewApplier(log *slog.Logger, dryRun bool) *Applier {
+	return &Applier{log: log, dryRun: dryRun}
 }
 
-func (w *Writer) WriteFile(dest, destRel string, data []byte, perm fs.FileMode) error {
-	if w.dryRun {
-		w.log.Info("dry-run: would write", "path", destRel)
+func (a *Applier) WriteFile(dest, destRel string, data []byte, perm fs.FileMode) error {
+	if a.dryRun {
+		a.log.Info("dry-run: would write", "path", destRel)
 		return nil
 	}
 
@@ -37,9 +37,9 @@ func (w *Writer) WriteFile(dest, destRel string, data []byte, perm fs.FileMode) 
 	return nil
 }
 
-func (w *Writer) MkdirAll(dest, destRel string, perm fs.FileMode) error {
-	if w.dryRun {
-		w.log.Info("dry-run: would create dir", "path", destRel)
+func (a *Applier) MkdirAll(dest, destRel string, perm fs.FileMode) error {
+	if a.dryRun {
+		a.log.Info("dry-run: would create dir", "path", destRel)
 		return nil
 	}
 
@@ -50,9 +50,9 @@ func (w *Writer) MkdirAll(dest, destRel string, perm fs.FileMode) error {
 	return nil
 }
 
-func (w *Writer) RemoveAll(dest, destRel string) error {
-	if w.dryRun {
-		w.log.Info("dry-run: would remove", "path", destRel)
+func (a *Applier) RemoveAll(dest, destRel string) error {
+	if a.dryRun {
+		a.log.Info("dry-run: would remove", "path", destRel)
 		return nil
 	}
 
@@ -63,9 +63,9 @@ func (w *Writer) RemoveAll(dest, destRel string) error {
 	return nil
 }
 
-func (w *Writer) CopyDir(src, dest, destRel string) error {
-	if w.dryRun {
-		w.log.Info("dry-run: would copy dir", "path", destRel)
+func (a *Applier) CopyDir(src, dest, destRel string) error {
+	if a.dryRun {
+		a.log.Info("dry-run: would copy dir", "path", destRel)
 		return nil
 	}
 

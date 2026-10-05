@@ -32,7 +32,13 @@ func (r *runner) syncSkills(source string) error {
 		return err
 	}
 
-	if err := r.writer.RemoveAll(destDir, destDirRel); err != nil {
+	for _, name := range skills {
+		if err := safefs.CheckSymlinks(r.root, srcDirRel, filepath.Join(srcDir, name)); err != nil {
+			return err
+		}
+	}
+
+	if err := r.applier.RemoveAll(destDir, destDirRel); err != nil {
 		return err
 	}
 
@@ -40,7 +46,7 @@ func (r *runner) syncSkills(source string) error {
 		return nil
 	}
 
-	if err := r.writer.MkdirAll(destDir, destDirRel, 0o755); err != nil {
+	if err := r.applier.MkdirAll(destDir, destDirRel, 0o755); err != nil {
 		return err
 	}
 
@@ -88,18 +94,18 @@ func (r *runner) copySkill(srcDir, srcDirRel, destDir, destDirRel, name string) 
 		return "", err
 	}
 
-	if err := r.writer.CopyDir(srcSkill, destSkill, destRel); err != nil {
+	if err := r.applier.CopyDir(srcSkill, destSkill, destRel); err != nil {
 		return "", errors.WithStack(fmt.Errorf("copy skill %s: %w", name, err))
 	}
 
-	if err := r.rewriteSkillHeader(srcDirRel, name, srcSkill, destSkill); err != nil {
+	if err := r.rewriteSkillHeader(srcDirRel, destDirRel, name, srcSkill, destSkill); err != nil {
 		return "", err
 	}
 
 	return destRel, nil
 }
 
-func (r *runner) rewriteSkillHeader(srcDirRel, name, srcSkill, destSkill string) error {
+func (r *runner) rewriteSkillHeader(srcDirRel, destDirRel, name, srcSkill, destSkill string) error {
 	srcFile := filepath.Join(srcSkill, "SKILL.md")
 	data, err := os.ReadFile(srcFile)
 	if err != nil {
@@ -125,7 +131,7 @@ func (r *runner) rewriteSkillHeader(srcDirRel, name, srcSkill, destSkill string)
 	fmt.Fprintf(&b, "<!-- DO NOT EDIT: Generated from /%s/%s. Edit /%s/%s instead. -->\n\n", srcDirRel, name, srcDirRel, name)
 	b.WriteString(md.Body(content))
 
-	destRel := filepath.ToSlash(filepath.Join(filepath.Dir(destFile), filepath.Base(destFile)))
+	destRel := filepath.ToSlash(filepath.Join(destDirRel, name, "SKILL.md"))
 
-	return r.writer.WriteFile(destFile, destRel, []byte(b.String()), 0o644)
+	return r.applier.WriteFile(destFile, destRel, []byte(b.String()), 0o644)
 }

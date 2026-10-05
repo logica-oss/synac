@@ -19,7 +19,6 @@ for machine generation. Environment variables use the `SYNAC_` prefix.
 Precedence: flag > env > config file > default.
 
 ```yaml
-root: "."
 dry-run: false
 log-format: "console" # or "json"
 project-wide-source: "github" # github, agents, or off

@@ -9,16 +9,16 @@ import (
 )
 
 type runner struct {
-	log    *slog.Logger
-	root   string
-	writer *safefs.Writer
+	log     *slog.Logger
+	root    string
+	applier *safefs.Applier
 }
 
 func Run(log *slog.Logger, cfg config.Config) error {
 	return (&runner{
-		log:    log,
-		root:   cfg.Root,
-		writer: safefs.NewWriter(log, cfg.DryRun),
+		log:     log,
+		root:    cfg.Root,
+		applier: safefs.NewApplier(log, cfg.DryRun),
 	}).run(cfg)
 }
 

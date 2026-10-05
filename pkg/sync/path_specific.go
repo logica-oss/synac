@@ -32,7 +32,7 @@ func (r *runner) syncPathSpecific(source string) error {
 		return err
 	}
 
-	if err := r.writer.RemoveAll(destDir, destDirRel); err != nil {
+	if err := r.applier.RemoveAll(destDir, destDirRel); err != nil {
 		return err
 	}
 
@@ -40,7 +40,7 @@ func (r *runner) syncPathSpecific(source string) error {
 		return nil
 	}
 
-	if err := r.writer.MkdirAll(destDir, destDirRel, 0o755); err != nil {
+	if err := r.applier.MkdirAll(destDir, destDirRel, 0o755); err != nil {
 		return err
 	}
 
@@ -97,7 +97,7 @@ func (r *runner) convertInstruction(srcDir, srcDirRel, destDir, destDirRel, sour
 	destPath := filepath.Join(destDir, destName)
 	destRel := filepath.ToSlash(filepath.Join(destDirRel, destName))
 
-	if err := r.writer.WriteFile(destPath, destRel, []byte(in.Body()), 0o644); err != nil {
+	if err := r.applier.WriteFile(destPath, destRel, []byte(in.Body()), 0o644); err != nil {
 		return "", err
 	}
 
@@ -142,9 +142,14 @@ func (g githubInstruction) Body() string {
 	var b strings.Builder
 
 	if len(g.globs) > 0 {
+		escaped := make([]string, len(g.globs))
+		for i, glob := range g.globs {
+			escaped[i] = md.EscapeYAMLDoubleQuoted(glob)
+		}
+
 		b.WriteString("---\n")
 		b.WriteString("applyTo: \"")
-		b.WriteString(strings.Join(g.globs, ", "))
+		b.WriteString(strings.Join(escaped, ", "))
 		b.WriteString("\"\n")
 		b.WriteString("---\n")
 		b.WriteString("\n")

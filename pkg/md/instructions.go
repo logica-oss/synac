@@ -5,7 +5,12 @@ import (
 )
 
 func ParseApplyTo(content string) string {
-	for line := range strings.Lines(content) {
+	fm, _, ok := SplitFrontmatter(content)
+	if !ok {
+		return ""
+	}
+
+	for line := range strings.Lines(fm) {
 		if !strings.HasPrefix(line, "applyTo:") {
 			continue
 		}
@@ -102,6 +107,12 @@ func SplitGlobs(applyTo string) []string {
 	return out
 }
 
+func EscapeYAMLDoubleQuoted(s string) string {
+	s = strings.ReplaceAll(s, "\\", "\\\\")
+
+	return strings.ReplaceAll(s, "\"", "\\\"")
+}
+
 func BuildPathsFrontmatter(globs []string) string {
 	var b strings.Builder
 
@@ -109,7 +120,7 @@ func BuildPathsFrontmatter(globs []string) string {
 	b.WriteString("paths:\n")
 	for _, g := range globs {
 		b.WriteString("  - \"")
-		b.WriteString(g)
+		b.WriteString(EscapeYAMLDoubleQuoted(g))
 		b.WriteString("\"\n")
 	}
 	b.WriteString("---\n")
@@ -124,12 +135,27 @@ func ParsePaths(content string) []string {
 	}
 
 	var out []string
+	inPaths := false
 	for line := range strings.Lines(fm) {
 		t := strings.TrimSpace(line)
 
-		if t == delimiter || t == "paths:" {
+		if t == delimiter {
 			continue
 		}
+
+		if t == "paths:" {
+			inPaths = true
+			continue
+		}
+		indented := len(line) > 0 && (line[0] == ' ' || line[0] == '\t')
+		if !indented && !strings.HasPrefix(t, "-") && strings.Contains(t, ":") {
+			inPaths = false
+			continue
+		}
+		if !inPaths {
+			continue
+		}
+
 		if !strings.HasPrefix(t, "-") {
 			continue
 		}

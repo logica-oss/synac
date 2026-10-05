@@ -28,7 +28,9 @@ const (
 )
 
 type Config struct {
-	Root               string `mapstructure:"root"`
+	// Root is the repository root. It is resolved from --root, SYNAC_ROOT,
+	// or auto-detection, never from the config file.
+	Root               string `mapstructure:"-"`
 	DryRun             bool   `mapstructure:"dry-run"`
 	LogFormat          string `mapstructure:"log-format"`
 	ProjectWideSource  string `mapstructure:"project-wide-source"`
@@ -47,7 +49,6 @@ const (
 )
 
 func setDefaults(v *viper.Viper) {
-	v.SetDefault(keyRoot, "")
 	v.SetDefault(keyDryRun, false)
 	v.SetDefault(keyLogFormat, logFormatConsole)
 	v.SetDefault(keyProjectWideSource, SourceGithub)

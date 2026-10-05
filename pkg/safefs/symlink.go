@@ -11,7 +11,7 @@ import (
 )
 
 func CheckSymlinks(root, srcDirRel, srcSkill string) error {
-	allowed := filepath.Join(root, filepath.FromSlash(srcDirRel))
+	allowed, allowedResolved := resolveAllowed(root, srcDirRel)
 
 	return filepath.WalkDir(srcSkill, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -22,25 +22,61 @@ func CheckSymlinks(root, srcDirRel, srcSkill string) error {
 			return nil
 		}
 
-		target, err := filepath.EvalSymlinks(path)
-		if err != nil {
-			link, lErr := os.Readlink(path)
-			if lErr != nil {
-				return nil
-			}
-
-			if !filepath.IsAbs(link) {
-				link = filepath.Join(filepath.Dir(path), link)
-			}
-
-			target = filepath.Clean(link)
+		target, ok := resolveTarget(path)
+		if !ok {
+			return nil
 		}
 
-		if target != allowed && !strings.HasPrefix(target, allowed+string(os.PathSeparator)) {
+		if !isWithin(target, allowed, allowedResolved) {
 			rel, _ := filepath.Rel(root, path)
 			return errors.WithStack(fmt.Errorf("symlink escapes %s: %s", srcDirRel, filepath.ToSlash(rel)))
 		}
 
 		return nil
 	})
+}
+
+func resolveAllowed(root, srcDirRel string) (allowed, allowedResolved string) {
+	allowed = filepath.Join(root, filepath.FromSlash(srcDirRel))
+
+	allowedResolved = allowed
+	if resolved, err := filepath.EvalSymlinks(allowed); err == nil {
+		allowedResolved = resolved
+	}
+
+	return allowed, allowedResolved
+}
+
+func resolveTarget(path string) (string, bool) {
+	if target, err := filepath.EvalSymlinks(path); err == nil {
+		return target, true
+	}
+
+	link, err := os.Readlink(path)
+	if err != nil {
+		return "", false
+	}
+
+	if !filepath.IsAbs(link) {
+		dir := filepath.Dir(path)
+		if resolvedDir, rErr := filepath.EvalSymlinks(dir); rErr == nil {
+			dir = resolvedDir
+		}
+
+		link = filepath.Join(dir, link)
+	}
+
+	return filepath.Clean(link), true
+}
+
+func isWithin(target, allowed, allowedResolved string) bool {
+	if target == allowed || target == allowedResolved {
+		return true
+	}
+
+	if strings.HasPrefix(target, allowed+string(os.PathSeparator)) {
+		return true
+	}
+
+	return strings.HasPrefix(target, allowedResolved+string(os.PathSeparator))
 }

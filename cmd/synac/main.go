@@ -2,6 +2,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/logica-oss/synac/pkg/config"
 	"github.com/logica-oss/synac/pkg/sync"
+	"github.com/spf13/pflag"
 )
 
 func newLogger(format string, errWriter bool) *slog.Logger {
@@ -25,6 +27,10 @@ func newLogger(format string, errWriter bool) *slog.Logger {
 func main() {
 	cfg, err := config.Load(os.Args[1:])
 	if err != nil {
+		if errors.Is(err, pflag.ErrHelp) {
+			os.Exit(0)
+		}
+
 		fmt.Fprintf(os.Stderr, "synac: %v\n", err)
 		os.Exit(1)
 	}

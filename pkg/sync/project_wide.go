@@ -34,7 +34,7 @@ func (r *runner) syncProjectWide(source string) error {
 	body := md.StripGeneratedHeader(md.Body(content))
 	out := fmt.Sprintf(projectWideHeader+"\n\n", srcRel, srcRel) + body
 
-	if err := r.writer.WriteFile(dest, destRel, []byte(out), 0o644); err != nil {
+	if err := r.applier.WriteFile(dest, destRel, []byte(out), 0o644); err != nil {
 		return err
 	}
 

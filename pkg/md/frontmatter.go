@@ -22,7 +22,7 @@ func SplitFrontmatter(content string) (frontmatter, body string, ok bool) {
 		}
 	}
 	if closing == -1 {
-		return content, "", true
+		return "", content, false
 	}
 
 	return strings.Join(lines[:closing+1], "\n"), strings.Join(lines[closing+1:], "\n"), true

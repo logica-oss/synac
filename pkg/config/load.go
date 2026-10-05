@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/k1LoW/errors"
@@ -26,6 +27,9 @@ func Load(args []string) (Config, error) {
 	rootFlag, _ := fs.GetString(keyRoot)
 	searchRoot := rootFlag
 	if searchRoot == "" {
+		searchRoot = os.Getenv("SYNAC_ROOT")
+	}
+	if searchRoot == "" {
 		searchRoot = detectRoot()
 	}
 
@@ -45,8 +49,9 @@ func Load(args []string) (Config, error) {
 		}
 	}
 
+	var notFound viper.ConfigFileNotFoundError
 	if err := v.ReadInConfig(); err != nil {
-		if !errors.As(err, &viper.ConfigFileNotFoundError{}) {
+		if !errors.As(err, &notFound) {
 			return Config{}, errors.WithStack(fmt.Errorf("read config: %w", err))
 		}
 	}
@@ -55,12 +60,20 @@ func Load(args []string) (Config, error) {
 		return Config{}, errors.WithStack(fmt.Errorf("bind flags: %w", err))
 	}
 
+	if v.InConfig(keyRoot) {
+		return Config{}, errors.WithStack(fmt.Errorf("unsupported config key %q: set the root with --root or SYNAC_ROOT", keyRoot))
+	}
+
 	var cfg Config
 	if err := v.Unmarshal(&cfg); err != nil {
 		return Config{}, errors.WithStack(fmt.Errorf("decode config: %w", err))
 	}
 
-	root, err := resolveRoot(cfg.Root)
+	rootValue := rootFlag
+	if rootValue == "" {
+		rootValue = os.Getenv("SYNAC_ROOT")
+	}
+	root, err := resolveRoot(rootValue)
 	if err != nil {
 		return Config{}, err
 	}

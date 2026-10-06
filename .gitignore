@@ -5,6 +5,7 @@ logs
 # Go build output
 bin/
 dist/
+main
 
 # Go test artifacts
 coverage.out
@@ -12,8 +13,8 @@ coverage.html
 *.test
 *.out
 
-# Go module cache is not vendored
-vendor/
+# Workspace checksums
+go.work.sum
 
 # dotenv environment variable files
 .env

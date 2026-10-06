@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/k1LoW/errors"
+
 	"github.com/logica-oss/synac/pkg/config"
 	"github.com/logica-oss/synac/pkg/md"
 	"github.com/logica-oss/synac/pkg/safefs"

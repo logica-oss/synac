@@ -1,21 +1,21 @@
 package sync_test
 
 import (
-	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/youta-t/its"
+
 	"github.com/logica-oss/synac/internal"
 	"github.com/logica-oss/synac/pkg/config"
 	"github.com/logica-oss/synac/pkg/sync"
-	"github.com/youta-t/its"
 )
 
 func newTestLogger() *slog.Logger {
-	return slog.New(slog.NewTextHandler(io.Discard, nil))
+	return slog.New(slog.DiscardHandler)
 }
 
 func writeFile(t *testing.T, path, content string) {

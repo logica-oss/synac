@@ -8,9 +8,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/spf13/pflag"
+
 	"github.com/logica-oss/synac/pkg/config"
 	"github.com/logica-oss/synac/pkg/sync"
-	"github.com/spf13/pflag"
 )
 
 func newLogger(format string, errWriter bool) *slog.Logger {
@@ -21,6 +22,7 @@ func newLogger(format string, errWriter bool) *slog.Logger {
 	if strings.ToLower(format) == "json" {
 		return slog.New(slog.NewJSONHandler(w, nil))
 	}
+
 	return slog.New(slog.NewTextHandler(w, nil))
 }
 

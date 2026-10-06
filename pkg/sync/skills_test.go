@@ -3,8 +3,9 @@ package sync_test
 import (
 	"testing"
 
-	"github.com/logica-oss/synac/pkg/sync"
 	"github.com/youta-t/its"
+
+	"github.com/logica-oss/synac/pkg/sync"
 )
 
 func TestResolveSkills(t *testing.T) {

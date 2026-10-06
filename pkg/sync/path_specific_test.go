@@ -3,9 +3,10 @@ package sync_test
 import (
 	"testing"
 
+	"github.com/youta-t/its"
+
 	"github.com/logica-oss/synac/internal"
 	"github.com/logica-oss/synac/pkg/sync"
-	"github.com/youta-t/its"
 )
 
 func TestResolvePathSpecific(t *testing.T) {

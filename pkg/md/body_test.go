@@ -3,8 +3,9 @@ package md_test
 import (
 	"testing"
 
-	"github.com/logica-oss/synac/pkg/md"
 	"github.com/youta-t/its"
+
+	"github.com/logica-oss/synac/pkg/md"
 )
 
 func TestBody(t *testing.T) {

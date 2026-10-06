@@ -5,9 +5,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/youta-t/its"
+
 	"github.com/logica-oss/synac/internal"
 	"github.com/logica-oss/synac/pkg/config"
-	"github.com/youta-t/its"
 )
 
 // Each case must start from defaults because viper reads the environment.

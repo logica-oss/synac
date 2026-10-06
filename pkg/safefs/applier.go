@@ -77,6 +77,7 @@ func (a *Applier) WriteFile(dest, destRel string, data []byte, perm fs.FileMode)
 
 	if a.dryRun {
 		a.log.Info("dry-run: would write", "path", destRel)
+
 		return nil
 	}
 
@@ -101,6 +102,7 @@ func (a *Applier) MkdirAll(dest, destRel string, perm fs.FileMode) error {
 
 	if a.dryRun {
 		a.log.Info("dry-run: would create dir", "path", destRel)
+
 		return nil
 	}
 
@@ -119,6 +121,7 @@ func (a *Applier) RemoveAll(dest, destRel string) error {
 
 	if a.dryRun {
 		a.log.Info("dry-run: would remove", "path", destRel)
+
 		return nil
 	}
 
@@ -137,6 +140,7 @@ func (a *Applier) CopyDir(src, dest, destRel string) error {
 
 	if a.dryRun {
 		a.log.Info("dry-run: would copy dir", "path", destRel)
+
 		return nil
 	}
 

@@ -5,8 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/logica-oss/synac/pkg/safefs"
 	"github.com/youta-t/its"
+
+	"github.com/logica-oss/synac/pkg/safefs"
 )
 
 func TestSameFile(t *testing.T) {
@@ -28,6 +29,7 @@ func TestSameFile(t *testing.T) {
 					t.Helper()
 					p := filepath.Join(dir, "a.txt")
 					its.Nil[error]().Match(os.WriteFile(p, []byte("x"), 0o644)).OrFatal(t)
+
 					return p, p
 				},
 			},
@@ -42,6 +44,7 @@ func TestSameFile(t *testing.T) {
 					b := filepath.Join(dir, "b.txt")
 					its.Nil[error]().Match(os.WriteFile(a, []byte("a"), 0o644)).OrFatal(t)
 					its.Nil[error]().Match(os.WriteFile(b, []byte("b"), 0o644)).OrFatal(t)
+
 					return a, b
 				},
 			},
@@ -54,6 +57,7 @@ func TestSameFile(t *testing.T) {
 					t.Helper()
 					b := filepath.Join(dir, "b.txt")
 					its.Nil[error]().Match(os.WriteFile(b, []byte("b"), 0o644)).OrFatal(t)
+
 					return filepath.Join(dir, "missing"), b
 				},
 			},
@@ -66,6 +70,7 @@ func TestSameFile(t *testing.T) {
 					t.Helper()
 					a := filepath.Join(dir, "a.txt")
 					its.Nil[error]().Match(os.WriteFile(a, []byte("a"), 0o644)).OrFatal(t)
+
 					return a, filepath.Join(dir, "missing")
 				},
 			},

@@ -56,6 +56,7 @@ func (r *runner) run(cfg config.Config) error {
 func (r *runner) sync(source, category string, sync func(string) error) error {
 	if source == config.SourceOff {
 		r.log.Info("skip sync", "category", category, "source", config.SourceOff)
+
 		return nil
 	}
 

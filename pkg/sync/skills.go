@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/k1LoW/errors"
+
 	"github.com/logica-oss/synac/pkg/config"
 	"github.com/logica-oss/synac/pkg/md"
 	"github.com/logica-oss/synac/pkg/safefs"
@@ -75,6 +76,7 @@ func (r *runner) listSkills(srcDirRel, srcDir string) ([]string, error) {
 	if err != nil {
 		if os.IsNotExist(err) {
 			r.log.Info("skills source missing, nothing to sync", "dir", srcDirRel)
+
 			return nil, nil
 		}
 

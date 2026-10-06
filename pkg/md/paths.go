@@ -50,6 +50,7 @@ func extractPaths(v any) ([]string, error) {
 		if v == "" {
 			return nil, nil
 		}
+
 		return splitGlobs(v), nil
 
 	case []any:

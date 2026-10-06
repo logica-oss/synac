@@ -13,6 +13,7 @@ func ErrorContaining(want string) its.Matcher[error] {
 				if err == nil {
 					return "<nil>"
 				}
+
 				return err.Error()
 			},
 			its.StringContaining(want),

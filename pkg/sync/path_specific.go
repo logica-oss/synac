@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/k1LoW/errors"
+
 	"github.com/logica-oss/synac/pkg/config"
 	"github.com/logica-oss/synac/pkg/md"
 	"github.com/logica-oss/synac/pkg/safefs"
@@ -66,6 +67,7 @@ func (r *runner) listInstructions(srcDirRel, srcDir, source string) ([]string, e
 	if err != nil {
 		if os.IsNotExist(err) {
 			r.log.Info("path-specific source missing, nothing to sync", "dir", srcDirRel)
+
 			return nil, nil
 		}
 

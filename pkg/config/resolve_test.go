@@ -5,9 +5,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/youta-t/its"
+
 	"github.com/logica-oss/synac/internal"
 	"github.com/logica-oss/synac/pkg/config"
-	"github.com/youta-t/its"
 )
 
 func TestValidate(t *testing.T) {
@@ -194,6 +195,7 @@ func TestPreferredConfigFile(t *testing.T) {
 			got := config.PreferredConfigFile(dir, tt.args.rootOnly)
 			if tt.want == "" {
 				its.EqEq("").Match(got).OrError(t)
+
 				return
 			}
 			its.EqEq(filepath.Join(dir, tt.want)).Match(got).OrError(t)
@@ -242,6 +244,7 @@ func TestResolveRoot(t *testing.T) {
 			args: args{
 				root: func(t *testing.T, dir string) string {
 					t.Helper()
+
 					return filepath.Join(dir, "missing")
 				},
 			},
@@ -254,6 +257,7 @@ func TestResolveRoot(t *testing.T) {
 					t.Helper()
 					f := filepath.Join(dir, "f")
 					its.Nil[error]().Match(os.WriteFile(f, []byte("x"), 0o644)).OrFatal(t)
+
 					return f
 				},
 			},
@@ -268,6 +272,7 @@ func TestResolveRoot(t *testing.T) {
 					its.Nil[error]().Match(os.Mkdir(sub, 0o755)).OrFatal(t)
 					t.Chdir(sub)
 					its.Nil[error]().Match(os.Remove(sub)).OrFatal(t)
+
 					return ""
 				},
 				env: map[string]string{"GIT_DIR": "missing"},

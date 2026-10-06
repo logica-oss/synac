@@ -19,6 +19,7 @@ func SplitFrontmatter(content string) (frontmatter, body string, ok bool) {
 	for i := 1; i < len(lines); i++ {
 		if lines[i] == delimiter {
 			closing = i
+
 			break
 		}
 	}

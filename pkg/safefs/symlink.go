@@ -30,6 +30,7 @@ func CheckSymlinks(root, srcDirRel, srcSkill string) error {
 
 		if !isWithin(target, allowed, allowedResolved) {
 			rel, _ := filepath.Rel(root, path)
+
 			return errors.WithStack(fmt.Errorf("symlink escapes %s: %s", srcDirRel, filepath.ToSlash(rel)))
 		}
 

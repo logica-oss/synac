@@ -6,9 +6,10 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/youta-t/its"
+
 	"github.com/logica-oss/synac/internal"
 	"github.com/logica-oss/synac/pkg/safefs"
-	"github.com/youta-t/its"
 )
 
 func TestCheckSymlinks(t *testing.T) {
@@ -193,6 +194,7 @@ func TestResolveTarget(t *testing.T) {
 					t.Helper()
 					p := filepath.Join(dir, "a.txt")
 					its.Nil[error]().Match(os.WriteFile(p, []byte("a"), 0o644)).OrFatal(t)
+
 					return p
 				},
 			},
@@ -210,6 +212,7 @@ func TestResolveTarget(t *testing.T) {
 					its.Nil[error]().Match(os.WriteFile(p, []byte("a"), 0o644)).OrFatal(t)
 					link := filepath.Join(dir, "link")
 					its.Nil[error]().Match(os.Symlink(p, link)).OrFatal(t)
+
 					return link
 				},
 			},
@@ -225,6 +228,7 @@ func TestResolveTarget(t *testing.T) {
 					t.Helper()
 					link := filepath.Join(dir, "dangling")
 					its.Nil[error]().Match(os.Symlink(filepath.Join(dir, "missing"), link)).OrFatal(t)
+
 					return link
 				},
 			},
@@ -242,6 +246,7 @@ func TestResolveTarget(t *testing.T) {
 					b := filepath.Join(dir, "b")
 					its.Nil[error]().Match(os.Symlink(b, a)).OrFatal(t)
 					its.Nil[error]().Match(os.Symlink(a, b)).OrFatal(t)
+
 					return a
 				},
 			},
@@ -264,6 +269,7 @@ func TestResolveTarget(t *testing.T) {
 						its.Nil[error]().Match(os.Symlink(prev, p)).OrFatal(t)
 						prev = p
 					}
+
 					return prev
 				},
 			},
@@ -281,6 +287,7 @@ func TestResolveTarget(t *testing.T) {
 					b := filepath.Join(dir, "b")
 					its.Nil[error]().Match(os.Symlink("b", a)).OrFatal(t)
 					its.Nil[error]().Match(os.Symlink(filepath.Join(dir, "missing"), b)).OrFatal(t)
+
 					return a
 				},
 			},
@@ -303,6 +310,7 @@ func TestResolveTarget(t *testing.T) {
 
 					link := filepath.Join(dir, "link")
 					its.Nil[error]().Match(os.Symlink("sub", link)).OrFatal(t)
+
 					return link
 				},
 			},

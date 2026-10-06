@@ -153,7 +153,9 @@ func TestResolveAllowed(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			root := t.TempDir()
+			root, err := filepath.EvalSymlinks(t.TempDir())
+			its.Nil[error]().Match(err).OrFatal(t)
+
 			if tt.args.setup != nil {
 				tt.args.setup(t, root)
 			}
@@ -320,7 +322,9 @@ func TestResolveTarget(t *testing.T) {
 				t.Skip("root bypasses permissions")
 			}
 
-			dir := t.TempDir()
+			dir, err := filepath.EvalSymlinks(t.TempDir())
+			its.Nil[error]().Match(err).OrFatal(t)
+
 			p := tt.args.setup(t, dir)
 
 			target, ok := safefs.ResolveTarget(p)

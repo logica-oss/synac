@@ -115,8 +115,14 @@ func TestWithin(t *testing.T) {
 			errMatcher: its.Nil[error](),
 		},
 		{
-			name:       "success (dot parts skipped)",
-			args:       args{destRel: "./ok/./file.txt"},
+			name: "success (dot parts skipped)",
+			args: args{
+				setup: func(t *testing.T, root string) {
+					t.Helper()
+					its.Nil[error]().Match(os.MkdirAll(filepath.Join(root, "ok"), 0o755)).OrFatal(t)
+				},
+				destRel: "./ok/./file.txt",
+			},
 			errMatcher: its.Nil[error](),
 		},
 		{

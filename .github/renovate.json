@@ -6,5 +6,20 @@
   "labels": ["dependencies"],
   "minimumReleaseAge": "3 days",
   "rebaseWhen": "conflicted",
-  "gitIgnoredAuthors": ["114827586+autofix-ci[bot]@users.noreply.github.com"]
+  "gitIgnoredAuthors": ["114827586+autofix-ci[bot]@users.noreply.github.com"],
+  "packageRules": [
+    {
+      "description": "Upgrade go indirect dependencies",
+      "matchManagers": ["gomod"],
+      "matchDepTypes": ["indirect"],
+      "enabled": true
+    },
+    {
+      "description": "Restrict go indirect dependencies up to minor",
+      "matchManagers": ["gomod"],
+      "matchDepTypes": ["indirect"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
+  ]
 }

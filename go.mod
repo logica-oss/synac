@@ -24,5 +24,5 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	golang.org/x/sync v0.23.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
+	golang.org/x/text v0.42.0 // indirect
 )

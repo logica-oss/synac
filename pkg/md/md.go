@@ -5,8 +5,14 @@ import (
 	"strings"
 )
 
-func splitGlobs(applyTo string) []string {
-	if strings.TrimSpace(applyTo) == "" {
+func escapeYAMLDoubleQuoted(s string) string {
+	s = strings.ReplaceAll(s, "\\", "\\\\")
+
+	return strings.ReplaceAll(s, "\"", "\\\"")
+}
+
+func splitGlobs(s string) []string {
+	if strings.TrimSpace(s) == "" {
 		return nil
 	}
 
@@ -25,13 +31,13 @@ func splitGlobs(applyTo string) []string {
 		cur.Reset()
 	}
 
-	for i := 0; i < len(applyTo); i++ {
-		c := applyTo[i]
+	for i := 0; i < len(s); i++ {
+		c := s[i]
 
-		if c == '\\' && i+1 < len(applyTo) {
+		if c == '\\' && i+1 < len(s) {
 			cur.WriteByte(c)
 			i++
-			cur.WriteByte(applyTo[i])
+			cur.WriteByte(s[i])
 
 			continue
 		}

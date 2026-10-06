@@ -8,12 +8,6 @@ import (
 	"go.yaml.in/yaml/v3"
 )
 
-func escapeYAMLDoubleQuoted(s string) string {
-	s = strings.ReplaceAll(s, "\\", "\\\\")
-
-	return strings.ReplaceAll(s, "\"", "\\\"")
-}
-
 // BuildPathsFrontmatter builds a paths frontmatter block.
 func BuildPathsFrontmatter(globs []string) string {
 	var b strings.Builder
@@ -25,24 +19,6 @@ func BuildPathsFrontmatter(globs []string) string {
 		b.WriteString(escapeYAMLDoubleQuoted(g))
 		b.WriteString("\"\n")
 	}
-	b.WriteString("---\n")
-
-	return b.String()
-}
-
-// BuildApplyToFrontmatter builds an applyTo frontmatter block.
-func BuildApplyToFrontmatter(globs []string) string {
-	escaped := make([]string, len(globs))
-	for i, g := range globs {
-		escaped[i] = escapeYAMLDoubleQuoted(g)
-	}
-
-	var b strings.Builder
-
-	b.WriteString("---\n")
-	b.WriteString("applyTo: \"")
-	b.WriteString(strings.Join(escaped, ", "))
-	b.WriteString("\"\n")
 	b.WriteString("---\n")
 
 	return b.String()

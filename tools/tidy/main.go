@@ -5,14 +5,19 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/k1LoW/errors"
 )
 
+var errNoModule = errors.New("no go.mod found")
+
 func main() {
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, nil)))
+
 	if err := run(context.Background()); err != nil {
-		fmt.Fprintf(os.Stderr, "tidy: %v\n", err)
+		slog.Error("tidy failed", "error", err, "stack", errors.StackTraces(err))
 		os.Exit(1)
 	}
 }
@@ -20,7 +25,7 @@ func main() {
 func run(ctx context.Context) error {
 	root, err := os.Getwd()
 	if err != nil {
-		return err
+		return errors.WithStack(fmt.Errorf("get working directory: %w", err))
 	}
 
 	modules, err := findModules(root)
@@ -28,12 +33,16 @@ func run(ctx context.Context) error {
 		return err
 	}
 	if len(modules) == 0 {
-		return errNoModule
+		return errors.WithStack(errNoModule)
 	}
 
-	for _, m := range modules {
-		if err := tidyModule(ctx, m); err != nil {
-			return errors.WithStack(fmt.Errorf("%s: %w", m.dir, err))
+	for _, mod := range modules {
+		if err := tidy(ctx, mod); err != nil {
+			return err
+		}
+
+		if err := pinGoDirective(mod); err != nil {
+			return err
 		}
 	}
 

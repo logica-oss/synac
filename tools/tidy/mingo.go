@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"strconv"
 
@@ -10,32 +11,30 @@ import (
 	"golang.org/x/mod/modfile"
 )
 
-// pinGoDirective rewrites the go directive to the version mingo computes,
-// leaving the file untouched when it already matches.
-func pinGoDirective(m module) error {
-	fmt.Printf("==> mingo (%s)\n", m.dir)
+func pinGoDirective(mod module) error {
+	slog.Info("mingo", "dir", mod.dir)
 
 	scanner := mingo.Scanner{Deps: true, Indirect: true}
-	result, err := scanner.ScanDir(m.dir)
+	result, err := scanner.ScanDir(mod.dir)
 	if err != nil {
 		return errors.WithStack(fmt.Errorf("mingo: %w", err))
 	}
 
-	declared, err := readGoVersion(m.goMod)
+	declared, err := readGoVersion(mod.goMod)
 	if err != nil {
 		return err
 	}
 
 	minimum := "1." + strconv.Itoa(result.Version())
 	if declared == minimum {
-		fmt.Printf("    go %s is already minimal\n", declared)
+		slog.Info("go directive is already minimal", "version", declared)
 
 		return nil
 	}
 
-	fmt.Printf("    go %s -> go %s\n", declared, minimum)
+	slog.Info("pin go directive", "from", declared, "to", minimum)
 
-	return writeGoVersion(m, minimum)
+	return writeGoVersion(mod, minimum)
 }
 
 func readGoVersion(path string) (string, error) {
@@ -50,8 +49,8 @@ func readGoVersion(path string) (string, error) {
 	return file.Go.Version, nil
 }
 
-func writeGoVersion(m module, version string) error {
-	file, err := parseModFile(m.goMod)
+func writeGoVersion(mod module, version string) error {
+	file, err := parseModFile(mod.goMod)
 	if err != nil {
 		return err
 	}
@@ -66,18 +65,22 @@ func writeGoVersion(m module, version string) error {
 	file.Cleanup()
 
 	data := modfile.Format(file.Syntax)
-	info, err := os.Stat(m.goMod)
+	info, err := os.Stat(mod.goMod)
 	if err != nil {
-		return err
+		return errors.WithStack(fmt.Errorf("stat go.mod: %w", err))
 	}
 
-	return os.WriteFile(m.goMod, data, info.Mode().Perm())
+	if err := os.WriteFile(mod.goMod, data, info.Mode().Perm()); err != nil {
+		return errors.WithStack(fmt.Errorf("write go.mod: %w", err))
+	}
+
+	return nil
 }
 
 func parseModFile(path string) (*modfile.File, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(fmt.Errorf("read go.mod: %w", err))
 	}
 
 	file, err := modfile.Parse(path, data, nil)

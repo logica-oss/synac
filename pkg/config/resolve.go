@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -13,21 +14,24 @@ import (
 // Validate checks source selections and log format.
 func Validate(cfg Config) error {
 	if cfg.LogFormat != logFormatConsole && cfg.LogFormat != logFormatJSON {
-		return errors.WithStack(fmt.Errorf("invalid log-format %q: must be %q or %q", cfg.LogFormat, logFormatConsole, logFormatJSON))
+		return errors.WithStack(fmt.Errorf("invalid log-format %q: must be %q or %q",
+			cfg.LogFormat, logFormatConsole, logFormatJSON))
 	}
 
 	switch cfg.ProjectWideSource {
 	case SourceGithub, SourceAgents, SourceOff:
 
 	default:
-		return errors.WithStack(fmt.Errorf("invalid project-wide-source %q: must be github, agents, or off", cfg.ProjectWideSource))
+		return errors.WithStack(fmt.Errorf("invalid project-wide-source %q: must be github, agents, or off",
+			cfg.ProjectWideSource))
 	}
 
 	switch cfg.PathSpecificSource {
 	case SourceGithub, SourceClaude, SourceOff:
 
 	default:
-		return errors.WithStack(fmt.Errorf("invalid path-specific-source %q: must be github, claude, or off", cfg.PathSpecificSource))
+		return errors.WithStack(fmt.Errorf("invalid path-specific-source %q: must be github, claude, or off",
+			cfg.PathSpecificSource))
 	}
 
 	switch cfg.SkillsSource {
@@ -50,8 +54,6 @@ func firstNonEmpty(values ...string) string {
 	return ""
 }
 
-var configFileNames = []string{".synac.yaml", ".synac.json"}
-
 func preferredConfigFile(root string, rootOnly bool) string {
 	dirs := []string{"."}
 	if root != "" {
@@ -62,9 +64,10 @@ func preferredConfigFile(root string, rootOnly bool) string {
 	}
 
 	for _, dir := range dirs {
-		for _, name := range configFileNames {
+		for _, name := range []string{".synac.yaml", ".synac.json"} {
 			p := filepath.Join(dir, name)
 
+			//nolint:gosec // dir is "." or the resolved root, name is a fixed config filename
 			if st, err := os.Stat(p); err == nil && !st.IsDir() {
 				return p
 			}
@@ -109,7 +112,7 @@ func detectRoot() string {
 		return ws
 	}
 
-	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	out, err := exec.CommandContext(context.Background(), "git", "rev-parse", "--show-toplevel").Output()
 	if err != nil {
 		return ""
 	}

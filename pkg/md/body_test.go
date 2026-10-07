@@ -150,6 +150,7 @@ hello
 	}
 }
 
+//nolint:dupl // table shape mirrors TestEscapeYAMLDoubleQuoted by design
 func TestTrimLeadingBlankLines(t *testing.T) {
 	t.Parallel()
 
@@ -174,7 +175,7 @@ b
 		{
 			name: "leading blanks removed",
 			args: args{s: `
- 
+
 	a
 b
 `},
@@ -190,7 +191,7 @@ b
 		{
 			name: "only blanks",
 			args: args{s: `
-  
+
 `},
 			want: "",
 		},

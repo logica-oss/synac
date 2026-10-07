@@ -7,7 +7,7 @@ import (
 const delimiter = "---"
 
 // SplitFrontmatter separates frontmatter from the body.
-func SplitFrontmatter(content string) (frontmatter, body string, ok bool) {
+func SplitFrontmatter(content string) (string, string, bool) {
 	content = strings.ReplaceAll(content, "\r", "")
 
 	lines := strings.Split(content, "\n")

@@ -31,7 +31,7 @@ func NewApplier(log *slog.Logger, root string, dryRun bool) (*Applier, error) {
 
 // Close releases the root handle.
 func (a *Applier) Close() error {
-	return a.root.Close()
+	return errors.WithStack(a.root.Close())
 }
 
 // Within rejects paths escaping the root.
@@ -52,7 +52,7 @@ func (a *Applier) Within(destRel string) error {
 			prefix += "/" + part
 		}
 
-		fi, err := a.root.Lstat(prefix)
+		info, err := a.root.Lstat(prefix)
 		if err != nil {
 			if os.IsNotExist(err) {
 				return nil
@@ -61,7 +61,7 @@ func (a *Applier) Within(destRel string) error {
 			return errors.WithStack(fmt.Errorf("validate dest %s: %w", destRel, err))
 		}
 
-		if fi.Mode()&fs.ModeSymlink != 0 {
+		if info.Mode()&fs.ModeSymlink != 0 {
 			return errors.WithStack(fmt.Errorf("validate dest %s: symlinked path not allowed", destRel))
 		}
 	}
@@ -69,8 +69,8 @@ func (a *Applier) Within(destRel string) error {
 	return nil
 }
 
-// WriteFile writes data to dest, creating parents as needed.
-func (a *Applier) WriteFile(dest, destRel string, data []byte, perm fs.FileMode) error {
+// WriteFile writes data to destRel, creating parents as needed.
+func (a *Applier) WriteFile(destRel string, data []byte, perm fs.FileMode) error {
 	if err := a.Within(destRel); err != nil {
 		return err
 	}
@@ -94,8 +94,8 @@ func (a *Applier) WriteFile(dest, destRel string, data []byte, perm fs.FileMode)
 	return nil
 }
 
-// MkdirAll creates dest and parents.
-func (a *Applier) MkdirAll(dest, destRel string, perm fs.FileMode) error {
+// MkdirAll creates destRel and parents.
+func (a *Applier) MkdirAll(destRel string, perm fs.FileMode) error {
 	if err := a.Within(destRel); err != nil {
 		return err
 	}
@@ -113,8 +113,8 @@ func (a *Applier) MkdirAll(dest, destRel string, perm fs.FileMode) error {
 	return nil
 }
 
-// RemoveAll removes dest.
-func (a *Applier) RemoveAll(dest, destRel string) error {
+// RemoveAll removes destRel.
+func (a *Applier) RemoveAll(destRel string) error {
 	if err := a.Within(destRel); err != nil {
 		return err
 	}
@@ -144,9 +144,9 @@ func (a *Applier) CopyDir(src, dest, destRel string) error {
 		return nil
 	}
 
-	return copy.Copy(src, dest, copy.Options{
+	return errors.WithStack(copy.Copy(src, dest, copy.Options{
 		OnSymlink: func(string) copy.SymlinkAction {
 			return copy.Shallow
 		},
-	})
+	}))
 }

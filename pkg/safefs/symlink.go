@@ -14,34 +14,36 @@ import (
 func CheckSymlinks(root, srcDirRel, srcSkill string) error {
 	allowed, allowedResolved := resolveAllowed(root, srcDirRel)
 
-	return filepath.WalkDir(srcSkill, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
+	return errors.WithStack(
+		filepath.WalkDir(srcSkill, func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
 
-		if d.Type()&fs.ModeSymlink == 0 {
+			if d.Type()&fs.ModeSymlink == 0 {
+				return nil
+			}
+
+			target, ok := resolveTarget(path)
+			if !ok {
+				return nil
+			}
+
+			if !isWithin(target, allowed, allowedResolved) {
+				rel, _ := filepath.Rel(root, path)
+
+				return errors.WithStack(fmt.Errorf("symlink escapes %s: %s", srcDirRel, filepath.ToSlash(rel)))
+			}
+
 			return nil
-		}
-
-		target, ok := resolveTarget(path)
-		if !ok {
-			return nil
-		}
-
-		if !isWithin(target, allowed, allowedResolved) {
-			rel, _ := filepath.Rel(root, path)
-
-			return errors.WithStack(fmt.Errorf("symlink escapes %s: %s", srcDirRel, filepath.ToSlash(rel)))
-		}
-
-		return nil
-	})
+		}),
+	)
 }
 
-func resolveAllowed(root, srcDirRel string) (allowed, allowedResolved string) {
-	allowed = filepath.Join(root, filepath.FromSlash(srcDirRel))
+func resolveAllowed(root, srcDirRel string) (string, string) {
+	allowed := filepath.Join(root, filepath.FromSlash(srcDirRel))
 
-	allowedResolved = allowed
+	allowedResolved := allowed
 	if resolved, err := filepath.EvalSymlinks(allowed); err == nil {
 		allowedResolved = resolved
 	}
@@ -62,12 +64,14 @@ func resolveTarget(path string) (string, bool) {
 		if seen[cur] {
 			return "", false
 		}
+
 		seen[cur] = true
 
 		fi, err := os.Lstat(cur)
 		if err != nil {
 			return filepath.Clean(cur), true
 		}
+
 		if fi.Mode()&fs.ModeSymlink == 0 {
 			if target, err := filepath.EvalSymlinks(cur); err == nil {
 				return target, true
@@ -80,6 +84,7 @@ func resolveTarget(path string) (string, bool) {
 		if err != nil {
 			return "", false
 		}
+
 		if !filepath.IsAbs(link) {
 			link = filepath.Join(filepath.Dir(cur), link)
 		}

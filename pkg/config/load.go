@@ -6,69 +6,26 @@ import (
 	"strings"
 
 	"github.com/k1LoW/errors"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
-var envReplacer = strings.NewReplacer(".", "_", "-", "_")
-
 // Load parses flags, environment, and config file into a Config.
 func Load(args []string) (Config, error) {
-	fs := flags()
-	if err := fs.Parse(args); err != nil {
+	flagSet := flags()
+	if err := flagSet.Parse(args); err != nil {
+		return Config{}, errors.WithStack(fmt.Errorf("parse flags: %w", err))
+	}
+
+	explicitRoot := resolveExplicitRoot(flagSet)
+
+	conf := newViper(flagSet, explicitRoot)
+	if err := readConfig(conf, flagSet); err != nil {
 		return Config{}, err
 	}
 
-	v := viper.New()
-	v.SetEnvPrefix("SYNAC")
-	v.SetEnvKeyReplacer(envReplacer)
-	v.AutomaticEnv()
-
-	setDefaults(v)
-
-	rootFlag, _ := fs.GetString(keyRoot)
-	explicitRoot := firstNonEmpty(rootFlag, os.Getenv("SYNAC_ROOT"))
-	rootExplicit := explicitRoot != ""
-
-	searchRoot := explicitRoot
-	if searchRoot == "" {
-		searchRoot = detectRoot()
-	}
-
-	configFile, _ := fs.GetString(keyConfig)
-	if configFile != "" {
-		v.SetConfigFile(configFile)
-	} else {
-		v.SetConfigName(".synac")
-
-		if searchRoot != "" {
-			v.AddConfigPath(searchRoot)
-		}
-		if !rootExplicit {
-			v.AddConfigPath(".")
-		}
-
-		if explicit := preferredConfigFile(searchRoot, rootExplicit); explicit != "" {
-			v.SetConfigFile(explicit)
-		}
-	}
-
-	var notFound viper.ConfigFileNotFoundError
-	if err := v.ReadInConfig(); err != nil {
-		if !errors.As(err, &notFound) {
-			return Config{}, errors.WithStack(fmt.Errorf("read config: %w", err))
-		}
-	}
-
-	if err := v.BindPFlags(fs); err != nil {
-		return Config{}, errors.WithStack(fmt.Errorf("bind flags: %w", err))
-	}
-
-	if v.InConfig(keyRoot) {
-		return Config{}, errors.WithStack(fmt.Errorf("unsupported config key %q: set the root with --root or SYNAC_ROOT", keyRoot))
-	}
-
-	var cfg Config
-	if err := v.Unmarshal(&cfg); err != nil {
+	var loaded Config
+	if err := conf.Unmarshal(&loaded); err != nil {
 		return Config{}, errors.WithStack(fmt.Errorf("decode config: %w", err))
 	}
 
@@ -76,11 +33,76 @@ func Load(args []string) (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
-	cfg.Root = root
+	loaded.Root = root
 
-	if err := Validate(cfg); err != nil {
+	if err := Validate(loaded); err != nil {
 		return Config{}, err
 	}
 
-	return cfg, nil
+	return loaded, nil
+}
+
+func resolveExplicitRoot(flagSet *pflag.FlagSet) string {
+	rootFlag, _ := flagSet.GetString(keyRoot)
+
+	return firstNonEmpty(rootFlag, os.Getenv("SYNAC_ROOT"))
+}
+
+func newViper(flagSet *pflag.FlagSet, explicitRoot string) *viper.Viper {
+	conf := viper.New()
+	conf.SetEnvPrefix("SYNAC")
+	conf.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
+	conf.AutomaticEnv()
+
+	setDefaults(conf)
+
+	rootExplicit := explicitRoot != ""
+
+	searchRoot := explicitRoot
+	if searchRoot == "" {
+		searchRoot = detectRoot()
+	}
+
+	configFile, _ := flagSet.GetString(keyConfig)
+	if configFile != "" {
+		conf.SetConfigFile(configFile)
+
+		return conf
+	}
+
+	conf.SetConfigName(".synac")
+
+	if searchRoot != "" {
+		conf.AddConfigPath(searchRoot)
+	}
+	if !rootExplicit {
+		conf.AddConfigPath(".")
+	}
+
+	if explicit := preferredConfigFile(searchRoot, rootExplicit); explicit != "" {
+		conf.SetConfigFile(explicit)
+	}
+
+	return conf
+}
+
+func readConfig(conf *viper.Viper, flagSet *pflag.FlagSet) error {
+	var notFound viper.ConfigFileNotFoundError
+	if err := conf.ReadInConfig(); err != nil {
+		if !errors.As(err, &notFound) {
+			return errors.WithStack(fmt.Errorf("read config: %w", err))
+		}
+	}
+
+	if err := conf.BindPFlags(flagSet); err != nil {
+		return errors.WithStack(fmt.Errorf("bind flags: %w", err))
+	}
+
+	if conf.InConfig(keyRoot) {
+		return errors.WithStack(
+			fmt.Errorf("unsupported config key %q: set the root with --root or SYNAC_ROOT", keyRoot),
+		)
+	}
+
+	return nil
 }

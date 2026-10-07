@@ -9,6 +9,7 @@ import (
 	"github.com/logica-oss/synac/pkg/md"
 )
 
+//nolint:dupl // table shape mirrors TestBuildPathsFrontmatter by design
 func TestBuildApplyToFrontmatter(t *testing.T) {
 	t.Parallel()
 

@@ -10,23 +10,23 @@ import (
 
 // BuildPathsFrontmatter builds a paths frontmatter block.
 func BuildPathsFrontmatter(globs []string) string {
-	var b strings.Builder
+	var builder strings.Builder
 
-	b.WriteString("---\n")
-	b.WriteString("paths:\n")
-	for _, g := range globs {
-		b.WriteString("  - \"")
-		b.WriteString(escapeYAMLDoubleQuoted(g))
-		b.WriteString("\"\n")
+	builder.WriteString("---\n")
+	builder.WriteString("paths:\n")
+	for _, glob := range globs {
+		builder.WriteString("  - \"")
+		builder.WriteString(escapeYAMLDoubleQuoted(glob))
+		builder.WriteString("\"\n")
 	}
-	b.WriteString("---\n")
+	builder.WriteString("---\n")
 
-	return b.String()
+	return builder.String()
 }
 
 // ParsePaths extracts the paths list from frontmatter.
 func ParsePaths(content string) ([]string, error) {
-	fm, _, ok := SplitFrontmatter(content)
+	frontmatter, _, ok := SplitFrontmatter(content)
 	if !ok {
 		return nil, nil
 	}
@@ -34,41 +34,41 @@ func ParsePaths(content string) ([]string, error) {
 	var matter struct {
 		Paths any `yaml:"paths"`
 	}
-	if err := yaml.Unmarshal([]byte(fm), &matter); err != nil {
+	if err := yaml.Unmarshal([]byte(frontmatter), &matter); err != nil {
 		return nil, errors.WithStack(fmt.Errorf("parse paths: %w", err))
 	}
 
 	return extractPaths(matter.Paths)
 }
 
-func extractPaths(v any) ([]string, error) {
-	switch v := v.(type) {
+func extractPaths(value any) ([]string, error) {
+	switch value := value.(type) {
 	case nil:
 		return nil, nil
 
 	case string:
-		if v == "" {
+		if value == "" {
 			return nil, nil
 		}
 
-		return splitGlobs(v), nil
+		return splitGlobs(value), nil
 
 	case []any:
 		var out []string
-		for _, item := range v {
-			s, ok := item.(string)
+		for _, item := range value {
+			str, ok := item.(string)
 			if !ok {
 				return nil, errors.WithStack(fmt.Errorf("parse paths: unexpected item type %T", item))
 			}
 
-			if s != "" {
-				out = append(out, s)
+			if str != "" {
+				out = append(out, str)
 			}
 		}
 
 		return out, nil
 
 	default:
-		return nil, errors.WithStack(fmt.Errorf("parse paths: unexpected type %T", v))
+		return nil, errors.WithStack(fmt.Errorf("parse paths: unexpected type %T", value))
 	}
 }

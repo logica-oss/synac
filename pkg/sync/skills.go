@@ -15,7 +15,7 @@ import (
 	"github.com/logica-oss/synac/pkg/safefs"
 )
 
-func resolveSkills(source string) (srcDir, destDir string) {
+func resolveSkills(source string) (string, string) {
 	if source == config.SourceClaude {
 		return skillsClaudeDir, skillsAgentsDir
 	}
@@ -47,7 +47,7 @@ func (r *runner) syncSkills(source string) error {
 		return errors.WithStack(fmt.Errorf("skills source and destination are the same directory: %s", srcDirRel))
 	}
 
-	if err := r.applier.RemoveAll(destDir, destDirRel); err != nil {
+	if err := r.applier.RemoveAll(destDirRel); err != nil {
 		return err
 	}
 
@@ -55,7 +55,7 @@ func (r *runner) syncSkills(source string) error {
 		return nil
 	}
 
-	if err := r.applier.MkdirAll(destDir, destDirRel, 0o755); err != nil {
+	if err := r.applier.MkdirAll(destDirRel, 0o755); err != nil {
 		return err
 	}
 
@@ -119,7 +119,7 @@ func (r *runner) rewriteSkillHeader(srcDirRel, destDirRel, name, srcSkill, destS
 			return nil
 		}
 
-		return err
+		return errors.WithStack(fmt.Errorf("read skill %s: %w", name, err))
 	}
 
 	destFile := filepath.Join(destSkill, "SKILL.md")
@@ -129,15 +129,16 @@ func (r *runner) rewriteSkillHeader(srcDirRel, destDirRel, name, srcSkill, destS
 
 	content := string(data)
 
-	var b strings.Builder
-	if fm, _, ok := md.SplitFrontmatter(content); ok {
-		b.WriteString(fm)
-		b.WriteString("\n\n")
+	var builder strings.Builder
+	if frontmatter, _, ok := md.SplitFrontmatter(content); ok {
+		builder.WriteString(frontmatter)
+		builder.WriteString("\n\n")
 	}
-	fmt.Fprintf(&b, "<!-- DO NOT EDIT: Generated from /%s/%s. Edit /%s/%s instead. -->\n\n", srcDirRel, name, srcDirRel, name)
-	b.WriteString(md.StripGeneratedHeader(md.Body(content)))
+	fmt.Fprintf(&builder, "<!-- DO NOT EDIT: Generated from /%s/%s. Edit /%s/%s instead. -->\n\n",
+		srcDirRel, name, srcDirRel, name)
+	builder.WriteString(md.StripGeneratedHeader(md.Body(content)))
 
 	destRel := filepath.ToSlash(filepath.Join(destDirRel, name, "SKILL.md"))
 
-	return r.applier.WriteFile(destFile, destRel, []byte(b.String()), 0o644)
+	return r.applier.WriteFile(destRel, []byte(builder.String()), 0o644)
 }

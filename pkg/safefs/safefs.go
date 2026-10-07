@@ -6,13 +6,13 @@ import (
 )
 
 // SameFile reports whether two paths refer to the same file.
-func SameFile(a, b string) bool {
-	aInfo, aErr := os.Stat(a)
+func SameFile(first, second string) bool {
+	aInfo, aErr := os.Stat(first)
 	if aErr != nil {
 		return false
 	}
 
-	bInfo, bErr := os.Stat(b)
+	bInfo, bErr := os.Stat(second)
 	if bErr != nil {
 		return false
 	}

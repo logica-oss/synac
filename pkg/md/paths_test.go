@@ -3,11 +3,13 @@ package md_test
 import (
 	"testing"
 
+	"github.com/youta-t/its"
+
 	"github.com/logica-oss/synac/internal"
 	"github.com/logica-oss/synac/pkg/md"
-	"github.com/youta-t/its"
 )
 
+//nolint:dupl // table shape mirrors TestBuildApplyToFrontmatter by design
 func TestBuildPathsFrontmatter(t *testing.T) {
 	t.Parallel()
 

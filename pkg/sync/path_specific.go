@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/k1LoW/errors"
+
 	"github.com/logica-oss/synac/pkg/config"
 	"github.com/logica-oss/synac/pkg/md"
 	"github.com/logica-oss/synac/pkg/safefs"
@@ -15,7 +16,7 @@ import (
 
 const pathSpecificHeader = "<!-- DO NOT EDIT: Generated from /%s. Edit /%s instead. -->"
 
-func resolvePathSpecific(source string) (srcDir, destDir string) {
+func resolvePathSpecific(source string) (string, string) {
 	if source == config.SourceClaude {
 		return pathClaudeDir, pathGithubDir
 	}
@@ -37,7 +38,7 @@ func (r *runner) syncPathSpecific(source string) error {
 		return errors.WithStack(fmt.Errorf("path-specific source and destination are the same directory: %s", srcDirRel))
 	}
 
-	if err := r.applier.RemoveAll(destDir, destDirRel); err != nil {
+	if err := r.applier.RemoveAll(destDirRel); err != nil {
 		return err
 	}
 
@@ -45,12 +46,12 @@ func (r *runner) syncPathSpecific(source string) error {
 		return nil
 	}
 
-	if err := r.applier.MkdirAll(destDir, destDirRel, 0o755); err != nil {
+	if err := r.applier.MkdirAll(destDirRel, 0o755); err != nil {
 		return err
 	}
 
 	for _, name := range instructions {
-		destRel, err := r.convertInstruction(srcDir, srcDirRel, destDir, destDirRel, source, name)
+		destRel, err := r.convertInstruction(srcDir, srcDirRel, destDirRel, source, name)
 		if err != nil {
 			return err
 		}
@@ -66,6 +67,7 @@ func (r *runner) listInstructions(srcDirRel, srcDir, source string) ([]string, e
 	if err != nil {
 		if os.IsNotExist(err) {
 			r.log.Info("path-specific source missing, nothing to sync", "dir", srcDirRel)
+
 			return nil, nil
 		}
 
@@ -89,106 +91,75 @@ func (r *runner) listInstructions(srcDirRel, srcDir, source string) ([]string, e
 	return instructions, nil
 }
 
-func (r *runner) convertInstruction(srcDir, srcDirRel, destDir, destDirRel, source, name string) (string, error) {
+func (r *runner) convertInstruction(srcDir, srcDirRel, destDirRel, source, name string) (string, error) {
 	srcPath := filepath.Join(srcDir, name)
 	data, err := os.ReadFile(srcPath)
 	if err != nil {
 		return "", errors.WithStack(fmt.Errorf("read %s: %w", name, err))
 	}
 
-	in, err := parseInstruction(name, string(data), source, filepath.ToSlash(filepath.Join(srcDirRel, name)))
+	inName, inBody, err := parseInstruction(name, string(data), source, filepath.ToSlash(filepath.Join(srcDirRel, name)))
 	if err != nil {
 		return "", err
 	}
 
-	destName := in.Name()
-	destPath := filepath.Join(destDir, destName)
-	destRel := filepath.ToSlash(filepath.Join(destDirRel, destName))
+	destRel := filepath.ToSlash(filepath.Join(destDirRel, inName))
 
-	if err := r.applier.WriteFile(destPath, destRel, []byte(in.Body()), 0o644); err != nil {
+	if err := r.applier.WriteFile(destRel, []byte(inBody), 0o644); err != nil {
 		return "", err
 	}
 
 	return destRel, nil
 }
 
-func parseInstruction(name, content, source, relSrc string) (instruction, error) {
-	if source == config.SourceClaude {
+func parseInstruction(name, content, source, relSrc string) (string, string, error) {
+	switch source {
+	case config.SourceClaude:
 		globs, err := md.ParsePaths(content)
 		if err != nil {
-			return nil, errors.WithStack(fmt.Errorf("parse %s: %w", name, err))
+			return "", "", errors.WithStack(fmt.Errorf("parse %s: %w", name, err))
 		}
 
-		return githubInstruction{
-			base:   strings.TrimSuffix(name, ".md"),
-			globs:  globs,
-			body:   md.StripGeneratedHeader(md.Body(content)),
-			relSrc: relSrc,
-		}, nil
+		frontmatter := ""
+		if len(globs) > 0 {
+			frontmatter = md.BuildApplyToFrontmatter(globs)
+		}
+
+		return strings.TrimSuffix(name, ".md") + ".instructions.md",
+			buildInstructionBody(frontmatter,
+				md.StripGeneratedHeader(md.Body(content)), relSrc),
+			nil
+
+	case config.SourceGithub:
+		globs, err := md.ParseApplyTo(content)
+		if err != nil {
+			return "", "", errors.WithStack(fmt.Errorf("parse %s: %w", name, err))
+		}
+
+		frontmatter := ""
+		if len(globs) > 0 {
+			frontmatter = md.BuildPathsFrontmatter(globs)
+		}
+
+		return strings.TrimSuffix(name, ".instructions.md") + ".md",
+			buildInstructionBody(frontmatter,
+				md.StripGeneratedHeader(md.Body(content)), relSrc),
+			nil
+
+	default:
+		return "", "", errors.WithStack(fmt.Errorf("unknown path-specific source %q", source))
 	}
+}
 
-	globs, err := md.ParseApplyTo(content)
-	if err != nil {
-		return nil, errors.WithStack(fmt.Errorf("parse %s: %w", name, err))
+func buildInstructionBody(frontmatter, body, relSrc string) string {
+	var builder strings.Builder
+
+	if frontmatter != "" {
+		builder.WriteString(frontmatter)
+		builder.WriteString("\n")
 	}
+	fmt.Fprintf(&builder, pathSpecificHeader+"\n\n", relSrc, relSrc)
+	builder.WriteString(body)
 
-	return claudeRule{
-		base:   strings.TrimSuffix(name, ".instructions.md"),
-		globs:  globs,
-		body:   md.StripGeneratedHeader(md.Body(content)),
-		relSrc: relSrc,
-	}, nil
-}
-
-type instruction interface {
-	Name() string
-	Body() string
-}
-
-type githubInstruction struct {
-	base   string
-	globs  []string
-	body   string
-	relSrc string
-}
-
-func (g githubInstruction) Name() string {
-	return g.base + ".instructions.md"
-}
-
-func (g githubInstruction) Body() string {
-	var b strings.Builder
-
-	if len(g.globs) > 0 {
-		b.WriteString(md.BuildApplyToFrontmatter(g.globs))
-		b.WriteString("\n")
-	}
-	fmt.Fprintf(&b, pathSpecificHeader+"\n\n", g.relSrc, g.relSrc)
-	b.WriteString(g.body)
-
-	return b.String()
-}
-
-type claudeRule struct {
-	base   string
-	globs  []string
-	body   string
-	relSrc string
-}
-
-func (c claudeRule) Name() string {
-	return c.base + ".md"
-}
-
-func (c claudeRule) Body() string {
-	var b strings.Builder
-
-	if len(c.globs) > 0 {
-		b.WriteString(md.BuildPathsFrontmatter(c.globs))
-		b.WriteString("\n")
-	}
-	fmt.Fprintf(&b, pathSpecificHeader+"\n\n", c.relSrc, c.relSrc)
-	b.WriteString(c.body)
-
-	return b.String()
+	return builder.String()
 }

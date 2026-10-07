@@ -1,0 +1,114 @@
+version: 3
+
+# Task definition order
+#
+# 1.
+#   desc
+#
+# 2.
+#   internal
+#   dir
+#   silent
+#
+# 3.
+#   vars
+#   status / sources / generates / methods / preconditions
+#   deps
+#
+# 4.
+#   cmds
+
+vars:
+  GO_PACKAGES: ./... ./tools/...
+
+tasks:
+  check-binary:
+    desc: Check if the binary exists
+    internal: true
+    silent: true
+    cmds:
+      - |
+        if ! (type {{.BINARY}} >/dev/null 2>&1); then
+          echo "Install \"{{if .ALT_NAME}}{{.ALT_NAME}}{{else}}{{.BINARY}}{{end}}\" and rerun this task."
+          echo {{.INSTALL_DOC}}
+          exit 1
+        fi
+
+  tidy:
+    desc: Tidy
+    deps:
+      - task: check-binary
+        vars:
+          BINARY: go
+          INSTALL_DOC: https://go.dev/doc/install
+    cmds:
+      - go tool tidy
+
+  format:
+    desc: Format
+    deps:
+      - task: check-binary
+        vars:
+          BINARY: go
+          INSTALL_DOC: https://go.dev/doc/install
+    cmds:
+      - go tool golangci-lint fmt {{.GO_PACKAGES}}
+
+  lint:
+    desc: Lint
+    deps:
+      - task: check-binary
+        vars:
+          BINARY: go
+          INSTALL_DOC: https://go.dev/doc/install
+    cmds:
+      - go tool golangci-lint run {{.GO_PACKAGES}}
+
+  lint-fix:
+    desc: Lint with fix
+    deps:
+      - task: check-binary
+        vars:
+          BINARY: go
+          INSTALL_DOC: https://go.dev/doc/install
+    cmds:
+      - go tool golangci-lint run --fix {{.GO_PACKAGES}}
+
+  test:
+    desc: Test
+    deps:
+      - task: check-binary
+        vars:
+          BINARY: go
+          INSTALL_DOC: https://go.dev/doc/install
+    cmds:
+      - go test -count=1 -parallel 1 {{.GO_PACKAGES}}
+
+  build:
+    desc: Build
+    deps:
+      - task: check-binary
+        vars:
+          BINARY: go
+          INSTALL_DOC: https://go.dev/doc/install
+    cmds:
+      - go build ./cmd/synac/*.go
+
+  run:
+    desc: Run synac
+    deps:
+      - task: check-binary
+        vars:
+          BINARY: go
+          INSTALL_DOC: https://go.dev/doc/install
+    cmds:
+      - go run ./cmd/synac {{.CLI_ARGS}}
+
+  default:
+    desc: Run all tasks
+    cmds:
+      - task: tidy
+      - task: lint-fix
+      - task: format
+      - task: build
+      - task: test

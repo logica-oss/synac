@@ -1,6 +1,6 @@
 module github.com/logica-oss/synac
 
-go 1.26.0
+go 1.26
 
 toolchain go1.27.1
 

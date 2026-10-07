@@ -11,73 +11,106 @@ func escapeYAMLDoubleQuoted(s string) string {
 	return strings.ReplaceAll(s, "\"", "\\\"")
 }
 
-func splitGlobs(s string) []string {
-	if strings.TrimSpace(s) == "" {
+type globSplitter struct {
+	out          []string
+	cur          strings.Builder
+	braceDepth   int
+	bracketDepth int
+}
+
+func (g *globSplitter) flush() {
+	if trimmed := strings.TrimSpace(g.cur.String()); trimmed != "" {
+		g.out = append(g.out, trimmed)
+	}
+
+	g.cur.Reset()
+}
+
+func (g *globSplitter) writeEscaped(input string, i int) int {
+	g.cur.WriteByte(input[i])
+
+	i++
+	g.cur.WriteByte(input[i])
+
+	return i
+}
+
+func (g *globSplitter) writeBrace(char byte) {
+	if g.bracketDepth == 0 {
+		g.braceDepth++
+	}
+
+	g.cur.WriteByte(char)
+}
+
+func (g *globSplitter) writeCloseBrace(char byte) {
+	if g.bracketDepth == 0 && g.braceDepth > 0 {
+		g.braceDepth--
+	}
+
+	g.cur.WriteByte(char)
+}
+
+func (g *globSplitter) writeOpenBracket(char byte) {
+	g.bracketDepth++
+	g.cur.WriteByte(char)
+}
+
+func (g *globSplitter) writeCloseBracket(char byte) {
+	if g.bracketDepth > 0 {
+		g.bracketDepth--
+	}
+
+	g.cur.WriteByte(char)
+}
+
+func (g *globSplitter) writeComma(char byte) {
+	if g.braceDepth == 0 && g.bracketDepth == 0 {
+		g.flush()
+	} else {
+		g.cur.WriteByte(char)
+	}
+}
+
+func splitGlobs(input string) []string {
+	if strings.TrimSpace(input) == "" {
 		return nil
 	}
 
-	var (
-		out []string
-		cur strings.Builder
-	)
-	braceDepth := 0
-	bracketDepth := 0
+	splitter := &globSplitter{}
 
-	flush := func() {
-		if trimmed := strings.TrimSpace(cur.String()); trimmed != "" {
-			out = append(out, trimmed)
-		}
+	//nolint:intrange // index is advanced manually for escape sequences
+	for i := 0; i < len(input); i++ {
+		char := input[i]
 
-		cur.Reset()
-	}
-
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-
-		if c == '\\' && i+1 < len(s) {
-			cur.WriteByte(c)
-			i++
-			cur.WriteByte(s[i])
+		if char == '\\' && i+1 < len(input) {
+			i = splitter.writeEscaped(input, i)
 
 			continue
 		}
 
-		switch c {
+		switch char {
 		case '{':
-			if bracketDepth == 0 {
-				braceDepth++
-			}
-			cur.WriteByte(c)
+			splitter.writeBrace(char)
 
 		case '}':
-			if bracketDepth == 0 && braceDepth > 0 {
-				braceDepth--
-			}
-			cur.WriteByte(c)
+			splitter.writeCloseBrace(char)
 
 		case '[':
-			bracketDepth++
-			cur.WriteByte(c)
+			splitter.writeOpenBracket(char)
 
 		case ']':
-			if bracketDepth > 0 {
-				bracketDepth--
-			}
-			cur.WriteByte(c)
+			splitter.writeCloseBracket(char)
 
 		case ',':
-			if braceDepth == 0 && bracketDepth == 0 {
-				flush()
-			} else {
-				cur.WriteByte(c)
-			}
+			splitter.writeComma(char)
 
 		default:
-			cur.WriteByte(c)
+			splitter.cur.WriteByte(char)
 		}
 	}
 
-	flush()
+	splitter.flush()
 
-	return out
+	return splitter.out
 }

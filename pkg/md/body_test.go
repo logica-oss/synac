@@ -3,8 +3,9 @@ package md_test
 import (
 	"testing"
 
-	"github.com/logica-oss/synac/pkg/md"
 	"github.com/youta-t/its"
+
+	"github.com/logica-oss/synac/pkg/md"
 )
 
 func TestBody(t *testing.T) {
@@ -149,6 +150,7 @@ hello
 	}
 }
 
+//nolint:dupl // table shape mirrors TestEscapeYAMLDoubleQuoted by design
 func TestTrimLeadingBlankLines(t *testing.T) {
 	t.Parallel()
 
@@ -173,7 +175,7 @@ b
 		{
 			name: "leading blanks removed",
 			args: args{s: `
- 
+
 	a
 b
 `},
@@ -189,7 +191,7 @@ b
 		{
 			name: "only blanks",
 			args: args{s: `
-  
+
 `},
 			want: "",
 		},

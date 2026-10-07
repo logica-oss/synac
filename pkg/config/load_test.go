@@ -5,16 +5,17 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/youta-t/its"
+
 	"github.com/logica-oss/synac/internal"
 	"github.com/logica-oss/synac/pkg/config"
-	"github.com/youta-t/its"
 )
 
 // Each case must start from defaults because viper reads the environment.
 func clearSynacEnv(t *testing.T) {
 	t.Helper()
 
-	for _, k := range []string{
+	for _, key := range []string{
 		"SYNAC_ROOT",
 		"SYNAC_DRY_RUN",
 		"SYNAC_LOG_FORMAT",
@@ -22,7 +23,7 @@ func clearSynacEnv(t *testing.T) {
 		"SYNAC_PATH_SPECIFIC_SOURCE",
 		"SYNAC_SKILLS_SOURCE",
 	} {
-		t.Setenv(k, "")
+		t.Setenv(key, "")
 	}
 }
 

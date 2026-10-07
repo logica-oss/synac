@@ -1,7 +1,9 @@
 package config
 
 // resolve.go
-var FirstNonEmpty = firstNonEmpty
-var PreferredConfigFile = preferredConfigFile
-var ResolveRoot = resolveRoot
-var DetectRoot = detectRoot
+var (
+	FirstNonEmpty       = firstNonEmpty
+	PreferredConfigFile = preferredConfigFile
+	ResolveRoot         = resolveRoot
+	DetectRoot          = detectRoot
+)

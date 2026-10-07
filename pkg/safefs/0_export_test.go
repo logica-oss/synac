@@ -1,6 +1,8 @@
 package safefs
 
 // symlink.go
-var ResolveAllowed = resolveAllowed
-var ResolveTarget = resolveTarget
-var IsWithin = isWithin
+var (
+	ResolveAllowed = resolveAllowed
+	ResolveTarget  = resolveTarget
+	IsWithin       = isWithin
+)

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/k1LoW/errors"
+
 	"github.com/logica-oss/synac/pkg/config"
 	"github.com/logica-oss/synac/pkg/md"
 	"github.com/logica-oss/synac/pkg/safefs"
@@ -13,7 +14,7 @@ import (
 
 const projectWideHeader = "<!-- DO NOT EDIT: Generated mirror of /%s. Edit /%s instead. -->"
 
-func resolveProjectWide(source string) (src, dest string) {
+func resolveProjectWide(source string) (string, string) {
 	if source == config.SourceAgents {
 		return projectWideRootFile, projectWideGithubFile
 	}
@@ -39,7 +40,7 @@ func (r *runner) syncProjectWide(source string) error {
 		return errors.WithStack(fmt.Errorf("project-wide source and destination are the same file: %s", srcRel))
 	}
 
-	if err := r.applier.WriteFile(dest, destRel, []byte(out), 0o644); err != nil {
+	if err := r.applier.WriteFile(destRel, []byte(out), 0o644); err != nil {
 		return err
 	}
 

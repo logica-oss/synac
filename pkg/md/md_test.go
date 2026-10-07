@@ -3,10 +3,12 @@ package md_test
 import (
 	"testing"
 
-	"github.com/logica-oss/synac/pkg/md"
 	"github.com/youta-t/its"
+
+	"github.com/logica-oss/synac/pkg/md"
 )
 
+//nolint:dupl // table shape mirrors TestTrimLeadingBlankLines by design
 func TestEscapeYAMLDoubleQuoted(t *testing.T) {
 	t.Parallel()
 

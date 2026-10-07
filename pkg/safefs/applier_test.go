@@ -7,22 +7,24 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/youta-t/its"
+
 	"github.com/logica-oss/synac/internal"
 	"github.com/logica-oss/synac/pkg/safefs"
-	"github.com/youta-t/its"
 )
 
 func newTestApplier(t *testing.T, dryRun bool) (*safefs.Applier, string) {
 	t.Helper()
 
 	root := t.TempDir()
-	a, err := safefs.NewApplier(slog.New(slog.NewTextHandler(os.Stderr, nil)), root, dryRun)
+	applier, err := safefs.NewApplier(slog.New(slog.NewTextHandler(os.Stderr, nil)), root, dryRun)
 	its.Nil[error]().Match(err).OrFatal(t)
+
 	t.Cleanup(func() {
-		_ = a.Close()
+		_ = applier.Close()
 	})
 
-	return a, root
+	return applier, root
 }
 
 func TestNewApplier(t *testing.T) {
@@ -59,7 +61,7 @@ func TestNewApplier(t *testing.T) {
 				root = filepath.Join(root, "missing")
 			}
 
-			a, err := safefs.NewApplier(
+			applier, err := safefs.NewApplier(
 				slog.New(slog.NewTextHandler(os.Stderr, nil)),
 				root,
 				tt.args.dryRun,
@@ -70,7 +72,7 @@ func TestNewApplier(t *testing.T) {
 				return
 			}
 
-			its.Nil[error]().Match(a.Close()).OrError(t)
+			its.Nil[error]().Match(applier.Close()).OrError(t)
 		})
 	}
 }
@@ -278,7 +280,6 @@ func TestWriteFile(t *testing.T) {
 			}
 
 			err := a.WriteFile(
-				filepath.Join(root, filepath.FromSlash(tt.args.destRel)),
 				tt.args.destRel,
 				[]byte(tt.args.data),
 				tt.args.perm,
@@ -292,6 +293,7 @@ func TestWriteFile(t *testing.T) {
 			if tt.want.missing {
 				_, err := os.Stat(filepath.Join(root, filepath.FromSlash(tt.args.destRel)))
 				its.EqEq(true).Match(os.IsNotExist(err)).OrError(t)
+
 				return
 			}
 
@@ -366,7 +368,6 @@ func TestMkdirAll(t *testing.T) {
 			}
 
 			err := a.MkdirAll(
-				filepath.Join(root, filepath.FromSlash(tt.args.destRel)),
 				tt.args.destRel,
 				tt.args.perm,
 			)
@@ -379,6 +380,7 @@ func TestMkdirAll(t *testing.T) {
 			info, err := os.Stat(filepath.Join(root, filepath.FromSlash(tt.args.destRel)))
 			if tt.missing {
 				its.EqEq(true).Match(os.IsNotExist(err)).OrError(t)
+
 				return
 			}
 
@@ -473,7 +475,6 @@ func TestRemoveAll(t *testing.T) {
 			}
 
 			err := a.RemoveAll(
-				filepath.Join(root, filepath.FromSlash(tt.args.destRel)),
 				tt.args.destRel,
 			)
 			tt.errMatcher.Match(err).OrError(t)
@@ -486,6 +487,7 @@ func TestRemoveAll(t *testing.T) {
 			if tt.keepDir {
 				its.Nil[error]().Match(err).OrError(t)
 				its.EqEq(true).Match(info.IsDir()).OrError(t)
+
 				return
 			}
 
@@ -522,6 +524,7 @@ func TestCopyDir(t *testing.T) {
 					src := filepath.Join(root, "src")
 					its.Nil[error]().Match(os.MkdirAll(src, 0o755)).OrFatal(t)
 					its.Nil[error]().Match(os.WriteFile(filepath.Join(src, "a.txt"), []byte("a"), 0o644)).OrFatal(t)
+
 					return src
 				},
 				destRel: "dest",
@@ -537,6 +540,7 @@ func TestCopyDir(t *testing.T) {
 					t.Helper()
 					src := filepath.Join(root, "src")
 					its.Nil[error]().Match(os.MkdirAll(src, 0o755)).OrFatal(t)
+
 					return src
 				},
 				destRel: "dest",
@@ -552,6 +556,7 @@ func TestCopyDir(t *testing.T) {
 					its.Nil[error]().Match(os.MkdirAll(src, 0o755)).OrFatal(t)
 					its.Nil[error]().Match(os.WriteFile(filepath.Join(src, "a.txt"), []byte("a"), 0o644)).OrFatal(t)
 					its.Nil[error]().Match(os.Symlink("a.txt", filepath.Join(src, "link"))).OrFatal(t)
+
 					return src
 				},
 				destRel: "dest",
@@ -571,6 +576,7 @@ func TestCopyDir(t *testing.T) {
 					its.Nil[error]().Match(os.MkdirAll(src, 0o755)).OrFatal(t)
 					its.Nil[error]().Match(os.MkdirAll(filepath.Join(root, "real"), 0o755)).OrFatal(t)
 					its.Nil[error]().Match(os.Symlink("real", filepath.Join(root, "link"))).OrFatal(t)
+
 					return src
 				},
 				destRel: "link",
@@ -582,6 +588,7 @@ func TestCopyDir(t *testing.T) {
 			args: args{
 				setupSrc: func(t *testing.T, root string) string {
 					t.Helper()
+
 					return filepath.Join(root, "missing")
 				},
 				destRel: "dest",
@@ -608,6 +615,7 @@ func TestCopyDir(t *testing.T) {
 			if tt.args.dryRun {
 				_, err := os.Stat(dest)
 				its.EqEq(true).Match(os.IsNotExist(err)).OrError(t)
+
 				return
 			}
 

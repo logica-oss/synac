@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Source values for sync origins.
 const (
 	SourceGithub = "github"
 	SourceAgents = "agents"
@@ -50,21 +51,25 @@ func setDefaults(v *viper.Viper) {
 }
 
 func flags() *pflag.FlagSet {
-	fs := pflag.NewFlagSet("synac", pflag.ContinueOnError)
+	flagSet := pflag.NewFlagSet("synac", pflag.ContinueOnError)
 
-	fs.String(keyConfig, "", "config file path (default: <root>/.synac.yaml or .synac.json)")
-	fs.String(keyRoot, "", "repository root (default: $GITHUB_WORKSPACE or git top level)")
-	fs.Bool(keyDryRun, false, "print planned changes without writing")
-	fs.String(keyLogFormat, logFormatConsole, "log format: console or json")
-	fs.String(keyProjectWideSource, SourceGithub, "project-wide source: github, agents, or off")
-	fs.String(keyPathSpecificSource, SourceGithub, "path-specific source: github, claude, or off")
-	fs.String(keySkillsSource, SourceAgents, "skills source: agents, claude, or off")
+	flagSet.String(keyConfig, "", "config file path (default: <root>/.synac.yaml or .synac.json)")
+	flagSet.String(keyRoot, "", "repository root (default: $GITHUB_WORKSPACE or git top level)")
+	flagSet.Bool(keyDryRun, false, "print planned changes without writing")
+	flagSet.String(keyLogFormat, logFormatConsole, "log format: console or json")
+	flagSet.String(keyProjectWideSource, SourceGithub, "project-wide source: github, agents, or off")
+	flagSet.String(keyPathSpecificSource, SourceGithub, "path-specific source: github, claude, or off")
+	flagSet.String(keySkillsSource, SourceAgents, "skills source: agents, claude, or off")
 
-	fs.Usage = func() {
-		fmt.Fprintf(fs.Output(), "Usage: synac [options]\n\nSync agent configs from canonical sources.\n\nOptions:\n")
-		fs.PrintDefaults()
-		fmt.Fprintf(fs.Output(), "\nConfig file: .synac.yaml (preferred, supports comments) or .synac.json in the repository root.\nEnvironment: SYNAC_* variables (e.g. SYNAC_DRY_RUN, SYNAC_LOG_FORMAT).\nPrecedence: flag > env > config file > default.\n")
+	flagSet.Usage = func() {
+		_, _ = fmt.Fprintf(flagSet.Output(),
+			"Usage: synac [options]\n\nSync agent configs from canonical sources.\n\nOptions:\n")
+		flagSet.PrintDefaults()
+		_, _ = fmt.Fprintf(flagSet.Output(), "\nConfig file: .synac.yaml (preferred, supports comments)"+
+			" or .synac.json in the repository root.\nEnvironment: SYNAC_* variables"+
+			" (e.g. SYNAC_DRY_RUN, SYNAC_LOG_FORMAT).\n"+
+			"Precedence: flag > env > config file > default.\n")
 	}
 
-	return fs
+	return flagSet
 }

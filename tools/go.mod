@@ -1,6 +1,6 @@
 module github.com/logica-oss/synac/tools
 
-go 1.27
+go 1.27.0
 
 toolchain go1.27.1
 
@@ -73,7 +73,7 @@ require (
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/curioswitch/go-reassign v0.3.0 // indirect
-	github.com/cyphar/filepath-securejoin v0.6.1 // indirect
+	github.com/cyphar/filepath-securejoin v0.7.0 // indirect
 	github.com/daixiang0/gci v0.14.0 // indirect
 	github.com/dave/dst v0.28.0 // indirect
 	github.com/denis-tingaikin/go-header v0.5.0 // indirect

@@ -25,7 +25,7 @@ func pinGoDirective(mod module) error {
 		return err
 	}
 
-	minimum := "1." + strconv.Itoa(result.Version())
+	minimum := "1." + strconv.Itoa(result.Version()) + ".0"
 	if declared == minimum {
 		slog.Info("go directive is already minimal", "version", declared)
 

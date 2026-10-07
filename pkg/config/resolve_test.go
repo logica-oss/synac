@@ -355,6 +355,7 @@ func TestDetectRoot(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Setenv("GITHUB_WORKSPACE", "")
+			t.Setenv("GIT_DIR", "")
 
 			dir := t.TempDir()
 			for key, value := range tt.args.env {

@@ -95,7 +95,7 @@ tasks:
       - go run ./cmd/synac {{.CLI_ARGS}}
 
   default:
-    desc: RUn all tasks
+    desc: Run all tasks
     cmds:
       - task: tidy
       - task: format

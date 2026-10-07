@@ -17,6 +17,8 @@ reviews:
       - "mergify[bot]"
 
   path_instructions:
+    - path: ".github/workflows/autofix.yaml"
+      instructions: "The `task run || true` step intentionally swallows sync failures so later autofix steps still commit partial fixes. Do not suggest removing `|| true`."
     - path: "pkg/sync/skills.go"
       instructions: "Removing the destination when the skills source directory is missing is intentional: deletions are part of the sync. Do not suggest returning early before RemoveAll."
     - path: "pkg/sync/path_specific.go"

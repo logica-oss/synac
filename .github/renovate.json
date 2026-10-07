@@ -7,6 +7,7 @@
   "minimumReleaseAge": "3 days",
   "rebaseWhen": "conflicted",
   "gitIgnoredAuthors": ["114827586+autofix-ci[bot]@users.noreply.github.com"],
+  "postUpdateOptions": ["gomodUpdateImportPaths", "gomodTidy"],
   "customManagers": [
     {
       "description": "Track the pinned golangci-lint version in verify-app.yaml",

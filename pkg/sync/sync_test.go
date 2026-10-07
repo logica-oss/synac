@@ -26,6 +26,8 @@ func writeFile(t *testing.T, path, content string) {
 }
 
 func TestRun(t *testing.T) {
+	t.Parallel()
+
 	type args struct {
 		setup func(t *testing.T, root string)
 		cfg   func(root string) config.Config
@@ -677,6 +679,8 @@ hello
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			if tt.skipIfRoot && os.Geteuid() == 0 {
 				t.Skip("root bypasses permissions")
 			}

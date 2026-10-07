@@ -1,8 +1,11 @@
 package config_test
 
 import (
+	"context"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/youta-t/its"
@@ -287,14 +290,15 @@ func TestResolveRoot(t *testing.T) {
 			t.Setenv("GIT_DIR", "")
 
 			dir := t.TempDir()
-			for k, v := range tt.args.env {
-				switch v {
+			for key, value := range tt.args.env {
+				switch value {
 				case "dir":
-					v = dir
+					value = dir
+
 				case "missing":
-					v = filepath.Join(dir, "missing")
+					value = filepath.Join(dir, "missing")
 				}
-				t.Setenv(k, v)
+				t.Setenv(key, value)
 			}
 
 			want := dir
@@ -337,6 +341,11 @@ func TestDetectRoot(t *testing.T) {
 			want: "dir",
 		},
 		{
+			name: "git toplevel when no env",
+			args: args{env: map[string]string{}},
+			want: "git",
+		},
+		{
 			name: "empty when git fails",
 			args: args{env: map[string]string{"GIT_DIR": "missing"}},
 			want: "",
@@ -346,22 +355,31 @@ func TestDetectRoot(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Setenv("GITHUB_WORKSPACE", "")
-			t.Setenv("GIT_DIR", "")
 
 			dir := t.TempDir()
-			for k, v := range tt.args.env {
-				switch v {
+			for key, value := range tt.args.env {
+				switch value {
 				case "dir":
-					v = dir
+					value = dir
+
 				case "missing":
-					v = filepath.Join(dir, "missing")
+					value = filepath.Join(dir, "missing")
 				}
-				t.Setenv(k, v)
+				t.Setenv(key, value)
+			}
+			if _, ok := tt.args.env["GIT_DIR"]; !ok {
+				_ = os.Unsetenv("GIT_DIR")
 			}
 
 			want := tt.want
-			if want == "dir" {
+			switch want {
+			case "dir":
 				want = dir
+
+			case "git":
+				out, err := exec.CommandContext(context.Background(), "git", "rev-parse", "--show-toplevel").Output()
+				its.Nil[error]().Match(err).OrFatal(t)
+				want = strings.TrimSpace(string(out))
 			}
 
 			its.EqEq(want).Match(config.DetectRoot()).OrError(t)

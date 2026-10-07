@@ -29,7 +29,7 @@ func TestCheckSymlinks(t *testing.T) {
 		{
 			name: "success (no symlinks)",
 			args: args{
-				setup: func(t *testing.T, root, skill string) {
+				setup: func(t *testing.T, _, skill string) {
 					t.Helper()
 					its.Nil[error]().Match(os.MkdirAll(skill, 0o755)).OrFatal(t)
 					its.Nil[error]().Match(os.WriteFile(filepath.Join(skill, "a.txt"), []byte("a"), 0o644)).OrFatal(t)
@@ -42,7 +42,7 @@ func TestCheckSymlinks(t *testing.T) {
 		{
 			name: "success (inner link)",
 			args: args{
-				setup: func(t *testing.T, root, skill string) {
+				setup: func(t *testing.T, _, skill string) {
 					t.Helper()
 					its.Nil[error]().Match(os.MkdirAll(skill, 0o755)).OrFatal(t)
 					its.Nil[error]().Match(os.WriteFile(filepath.Join(skill, "a.txt"), []byte("a"), 0o644)).OrFatal(t)
@@ -56,7 +56,7 @@ func TestCheckSymlinks(t *testing.T) {
 		{
 			name: "success (loop is skipped)",
 			args: args{
-				setup: func(t *testing.T, root, skill string) {
+				setup: func(t *testing.T, _, skill string) {
 					t.Helper()
 					its.Nil[error]().Match(os.MkdirAll(skill, 0o755)).OrFatal(t)
 					its.Nil[error]().Match(os.Symlink(filepath.Join(skill, "b"), filepath.Join(skill, "a"))).OrFatal(t)
@@ -136,9 +136,9 @@ func TestResolveAllowed(t *testing.T) {
 			args: args{
 				setup: func(t *testing.T, root string) {
 					t.Helper()
-					real := filepath.Join(root, "real")
-					its.Nil[error]().Match(os.MkdirAll(real, 0o755)).OrFatal(t)
-					its.Nil[error]().Match(os.Symlink(real, filepath.Join(root, "link"))).OrFatal(t)
+					realDir := filepath.Join(root, "real")
+					its.Nil[error]().Match(os.MkdirAll(realDir, 0o755)).OrFatal(t)
+					its.Nil[error]().Match(os.Symlink(realDir, filepath.Join(root, "link"))).OrFatal(t)
 				},
 				srcDir: "link",
 			},
@@ -199,7 +199,7 @@ func TestResolveTarget(t *testing.T) {
 				},
 			},
 			wantOK: true,
-			wantTarget: func(_ *testing.T, dir, resolved string) string {
+			wantTarget: func(_ *testing.T, _, resolved string) string {
 				return resolved
 			},
 		},
@@ -251,7 +251,7 @@ func TestResolveTarget(t *testing.T) {
 				},
 			},
 			wantOK: false,
-			wantTarget: func(_ *testing.T, dir, _ string) string {
+			wantTarget: func(_ *testing.T, _, _ string) string {
 				return ""
 			},
 		},
@@ -260,10 +260,10 @@ func TestResolveTarget(t *testing.T) {
 			args: args{
 				setup: func(t *testing.T, dir string) string {
 					t.Helper()
-					real := filepath.Join(dir, "real.txt")
-					its.Nil[error]().Match(os.WriteFile(real, []byte("x"), 0o644)).OrFatal(t)
+					realFile := filepath.Join(dir, "real.txt")
+					its.Nil[error]().Match(os.WriteFile(realFile, []byte("x"), 0o644)).OrFatal(t)
 
-					prev := real
+					prev := realFile
 					for i := range 300 {
 						p := filepath.Join(dir, "chain"+strconv.Itoa(i))
 						its.Nil[error]().Match(os.Symlink(prev, p)).OrFatal(t)
@@ -274,7 +274,7 @@ func TestResolveTarget(t *testing.T) {
 				},
 			},
 			wantOK: false,
-			wantTarget: func(_ *testing.T, dir, _ string) string {
+			wantTarget: func(_ *testing.T, _, _ string) string {
 				return ""
 			},
 		},

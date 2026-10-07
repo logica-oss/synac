@@ -122,6 +122,38 @@ hello
 			errMatcher: its.Nil[error](),
 		},
 		{
+			name: "success (claude to github without globs)",
+			args: args{
+				name: "foo.md",
+				content: `hello
+`,
+				source: "claude",
+				relSrc: ".claude/rules/foo.md",
+			},
+			wantName: "foo.instructions.md",
+			wantBody: `<!-- DO NOT EDIT: Generated from /.claude/rules/foo.md. Edit /.claude/rules/foo.md instead. -->
+
+hello
+`,
+			errMatcher: its.Nil[error](),
+		},
+		{
+			name: "success (github to claude without globs)",
+			args: args{
+				name: "foo.instructions.md",
+				content: `hello
+`,
+				source: "github",
+				relSrc: ".github/instructions/foo.instructions.md",
+			},
+			wantName: "foo.md",
+			wantBody: `<!-- DO NOT EDIT: Generated from /.github/instructions/foo.instructions.md. Edit /.github/instructions/foo.instructions.md instead. -->
+
+hello
+`,
+			errMatcher: its.Nil[error](),
+		},
+		{
 			name: "fail (bad applyTo)",
 			args: args{
 				name: "foo.instructions.md",
@@ -149,188 +181,31 @@ hello
 			},
 			errMatcher: internal.ErrorContaining("parse foo.md"),
 		},
+		{
+			name: "fail (unknown source)",
+			args: args{
+				name:    "foo.md",
+				content: "hello\n",
+				source:  "off",
+				relSrc:  "foo.md",
+			},
+			errMatcher: internal.ErrorContaining("unknown path-specific source"),
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got, err := sync.ParseInstruction(tt.args.name, tt.args.content, tt.args.source, tt.args.relSrc)
+			gotName, gotBody, err := sync.ParseInstruction(tt.args.name, tt.args.content, tt.args.source, tt.args.relSrc)
 			tt.errMatcher.Match(err).OrError(t)
 
 			if err != nil {
 				return
 			}
 
-			its.EqEq(tt.wantName).Match(got.Name()).OrError(t)
-			its.EqEq(tt.wantBody).Match(got.Body()).OrError(t)
-		})
-	}
-}
-
-func TestGithubInstruction(t *testing.T) {
-	t.Parallel()
-
-	type args struct {
-		name    string
-		content string
-		source  string
-		relSrc  string
-	}
-
-	type want struct {
-		name string
-		body its.Matcher[string]
-	}
-
-	tests := []struct {
-		name string
-		args args
-		want want
-	}{
-		{
-			name: "Name",
-			args: args{
-				name: "foo.md",
-				content: `hello
-`,
-				source: "claude",
-				relSrc: ".claude/rules/foo.md",
-			},
-			want: want{name: "foo.instructions.md"},
-		},
-		{
-			name: "Body (without globs)",
-			args: args{
-				name: "foo.md",
-				content: `hello
-`,
-				source: "claude",
-				relSrc: ".claude/rules/foo.md",
-			},
-			want: want{
-				name: "foo.instructions.md",
-				body: its.EqEq(`<!-- DO NOT EDIT: Generated from /.claude/rules/foo.md. Edit /.claude/rules/foo.md instead. -->
-
-hello
-`),
-			},
-		},
-		{
-			name: "Body (with globs)",
-			args: args{
-				name: "foo.md",
-				content: `---
-paths:
-  - "a"
----
-hello
-`,
-				source: "claude",
-				relSrc: ".claude/rules/foo.md",
-			},
-			want: want{
-				name: "foo.instructions.md",
-				body: its.StringHavingPrefix(`---
-applyTo:`),
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			got, err := sync.ParseInstruction(tt.args.name, tt.args.content, tt.args.source, tt.args.relSrc)
-			its.Nil[error]().Match(err).OrError(t)
-			its.EqEq(tt.want.name).Match(got.Name()).OrError(t)
-
-			if tt.want.body != nil {
-				tt.want.body.Match(got.Body()).OrError(t)
-			}
-		})
-	}
-}
-
-func TestClaudeRule(t *testing.T) {
-	t.Parallel()
-
-	type args struct {
-		name    string
-		content string
-		source  string
-		relSrc  string
-	}
-
-	type want struct {
-		name string
-		body its.Matcher[string]
-	}
-
-	tests := []struct {
-		name string
-		args args
-		want want
-	}{
-		{
-			name: "Name",
-			args: args{
-				name: "foo.instructions.md",
-				content: `hello
-`,
-				source: "github",
-				relSrc: ".github/instructions/foo.instructions.md",
-			},
-			want: want{name: "foo.md"},
-		},
-		{
-			name: "Body (without globs)",
-			args: args{
-				name: "foo.instructions.md",
-				content: `hello
-`,
-				source: "github",
-				relSrc: ".github/instructions/foo.instructions.md",
-			},
-			want: want{
-				name: "foo.md",
-				body: its.EqEq(`<!-- DO NOT EDIT: Generated from /.github/instructions/foo.instructions.md. Edit /.github/instructions/foo.instructions.md instead. -->
-
-hello
-`),
-			},
-		},
-		{
-			name: "Body (with globs)",
-			args: args{
-				name: "foo.instructions.md",
-				content: `---
-applyTo: "a"
----
-hello
-`,
-				source: "github",
-				relSrc: ".github/instructions/foo.instructions.md",
-			},
-			want: want{
-				name: "foo.md",
-				body: its.StringHavingPrefix(`---
-paths:`),
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			got, err := sync.ParseInstruction(tt.args.name, tt.args.content, tt.args.source, tt.args.relSrc)
-			its.Nil[error]().Match(err).OrError(t)
-			its.EqEq(tt.want.name).Match(got.Name()).OrError(t)
-
-			if tt.want.body != nil {
-				tt.want.body.Match(got.Body()).OrError(t)
-			}
+			its.EqEq(tt.wantName).Match(gotName).OrError(t)
+			its.EqEq(tt.wantBody).Match(gotBody).OrError(t)
 		})
 	}
 }

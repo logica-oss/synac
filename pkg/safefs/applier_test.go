@@ -17,13 +17,14 @@ func newTestApplier(t *testing.T, dryRun bool) (*safefs.Applier, string) {
 	t.Helper()
 
 	root := t.TempDir()
-	a, err := safefs.NewApplier(slog.New(slog.NewTextHandler(os.Stderr, nil)), root, dryRun)
+	applier, err := safefs.NewApplier(slog.New(slog.NewTextHandler(os.Stderr, nil)), root, dryRun)
 	its.Nil[error]().Match(err).OrFatal(t)
+
 	t.Cleanup(func() {
-		_ = a.Close()
+		_ = applier.Close()
 	})
 
-	return a, root
+	return applier, root
 }
 
 func TestNewApplier(t *testing.T) {
@@ -60,7 +61,7 @@ func TestNewApplier(t *testing.T) {
 				root = filepath.Join(root, "missing")
 			}
 
-			a, err := safefs.NewApplier(
+			applier, err := safefs.NewApplier(
 				slog.New(slog.NewTextHandler(os.Stderr, nil)),
 				root,
 				tt.args.dryRun,
@@ -71,7 +72,7 @@ func TestNewApplier(t *testing.T) {
 				return
 			}
 
-			its.Nil[error]().Match(a.Close()).OrError(t)
+			its.Nil[error]().Match(applier.Close()).OrError(t)
 		})
 	}
 }
@@ -279,7 +280,6 @@ func TestWriteFile(t *testing.T) {
 			}
 
 			err := a.WriteFile(
-				filepath.Join(root, filepath.FromSlash(tt.args.destRel)),
 				tt.args.destRel,
 				[]byte(tt.args.data),
 				tt.args.perm,
@@ -368,7 +368,6 @@ func TestMkdirAll(t *testing.T) {
 			}
 
 			err := a.MkdirAll(
-				filepath.Join(root, filepath.FromSlash(tt.args.destRel)),
 				tt.args.destRel,
 				tt.args.perm,
 			)
@@ -476,7 +475,6 @@ func TestRemoveAll(t *testing.T) {
 			}
 
 			err := a.RemoveAll(
-				filepath.Join(root, filepath.FromSlash(tt.args.destRel)),
 				tt.args.destRel,
 			)
 			tt.errMatcher.Match(err).OrError(t)

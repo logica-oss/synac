@@ -62,6 +62,16 @@ tasks:
           BINARY: go
           INSTALL_DOC: https://go.dev/doc/install
     cmds:
+      - go tool golangci-lint run {{.GO_PACKAGES}}
+
+  lint-fix:
+    desc: Lint with fix
+    deps:
+      - task: check-binary
+        vars:
+          BINARY: go
+          INSTALL_DOC: https://go.dev/doc/install
+    cmds:
       - go tool golangci-lint run --fix {{.GO_PACKAGES}}
 
   test:
@@ -98,7 +108,7 @@ tasks:
     desc: Run all tasks
     cmds:
       - task: tidy
+      - task: lint-fix
       - task: format
-      - task: lint
-      - task: test
       - task: build
+      - task: test

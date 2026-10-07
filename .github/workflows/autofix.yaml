@@ -35,7 +35,7 @@ jobs:
       - name: Tidy
         run: task tidy
       - name: Lint with fix
-        run: task lint || true
+        run: task lint-fix || true
       - name: Format
         run: task format
       - name: Sync Agent Config

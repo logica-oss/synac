@@ -5,8 +5,9 @@
 
 ## Fix
 
-- After any Go change: `task tidy`, `task format`, `task lint`.
+- After any Go change: `task tidy`, `task lint-fix`, `task format`.
 - Each of those rewrites files, so finish this section before checking.
+- `task format` runs last because neither `task lint` nor CI reports formatting drift.
 
 ## Check
 

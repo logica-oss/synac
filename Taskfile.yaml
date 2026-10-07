@@ -34,15 +34,15 @@ tasks:
           exit 1
         fi
 
-  lint:
-    desc: Lint
+  tidy:
+    desc: Tidy
     deps:
       - task: check-binary
         vars:
           BINARY: go
           INSTALL_DOC: https://go.dev/doc/install
     cmds:
-      - go tool golangci-lint run --fix {{.GO_PACKAGES}}
+      - go tool tidy
 
   format:
     desc: Format
@@ -54,6 +54,26 @@ tasks:
     cmds:
       - go tool golangci-lint fmt {{.GO_PACKAGES}}
 
+  lint:
+    desc: Lint
+    deps:
+      - task: check-binary
+        vars:
+          BINARY: go
+          INSTALL_DOC: https://go.dev/doc/install
+    cmds:
+      - go tool golangci-lint run --fix {{.GO_PACKAGES}}
+
+  test:
+    desc: Test
+    deps:
+      - task: check-binary
+        vars:
+          BINARY: go
+          INSTALL_DOC: https://go.dev/doc/install
+    cmds:
+      - go test -count=1 -parallel 1 {{.GO_PACKAGES}}
+
   build:
     desc: Build
     deps:
@@ -64,25 +84,15 @@ tasks:
     cmds:
       - go build ./cmd/synac/*.go
 
-  test:
-    desc: Test
+  run:
+    desc: Run synac
     deps:
       - task: check-binary
         vars:
           BINARY: go
           INSTALL_DOC: https://go.dev/doc/install
     cmds:
-      - go test -v ./...
-
-  tidy:
-    desc: Tidy
-    deps:
-      - task: check-binary
-        vars:
-          BINARY: go
-          INSTALL_DOC: https://go.dev/doc/install
-    cmds:
-      - go tool tidy
+      - go run ./cmd/synac {{.CLI_ARGS}}
 
   default:
     desc: RUn all tasks

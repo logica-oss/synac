@@ -1,4 +1,4 @@
-name: autofix.ci
+name: Verify (App)
 
 on:
   push:
@@ -6,17 +6,22 @@ on:
   pull_request:
 
 concurrency:
-  group: autofix-${{ github.workflow }}-${{ github.ref }}
+  group: verify-app-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  autofix:
-    name: Autofix
+  verify-app:
+    name: Verify (App)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     permissions:
       contents: read
+      actions: read
     steps:
+      - name: Wait for autofix
+        uses: logica-oss/actions-toolkit/wait-for-workflow@bd5176306ecb8bed535720b6101fadd3cc14a73e # v1.1.0
+        with:
+          workflow-id: autofix.yaml
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -32,13 +37,12 @@ jobs:
         uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
         with:
           version: 3.x
-      - name: Tidy
-        run: task tidy
-      - name: Lint with fix
-        run: task lint || true
-      - name: Format
-        run: task format
-      - name: Sync Agent Config
-        run: task run || true
-      - name: Autofix Text
-        uses: logica-oss/actions-toolkit/autofix-text@bd5176306ecb8bed535720b6101fadd3cc14a73e # v1.1.0
+      - name: Lint
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+        with:
+          version: latest
+          args: ./... ./tools/...
+      - name: Build
+        run: task build
+      - name: Test
+        run: task test

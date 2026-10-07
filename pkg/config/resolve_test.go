@@ -379,7 +379,9 @@ func TestDetectRoot(t *testing.T) {
 
 			case "git":
 				out, err := exec.CommandContext(context.Background(), "git", "rev-parse", "--show-toplevel").Output()
-				its.Nil[error]().Match(err).OrFatal(t)
+				if err != nil {
+					t.Skipf("not in a git work tree: %v", err)
+				}
 				want = strings.TrimSpace(string(out))
 			}
 

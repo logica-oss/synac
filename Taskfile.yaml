@@ -44,16 +44,6 @@ tasks:
     cmds:
       - go tool tidy
 
-  format:
-    desc: Format
-    deps:
-      - task: check-binary
-        vars:
-          BINARY: go
-          INSTALL_DOC: https://go.dev/doc/install
-    cmds:
-      - go tool golangci-lint fmt {{.GO_PACKAGES}}
-
   lint:
     desc: Lint
     deps:
@@ -74,15 +64,15 @@ tasks:
     cmds:
       - go tool golangci-lint run --fix {{.GO_PACKAGES}}
 
-  test:
-    desc: Test
+  format:
+    desc: Format
     deps:
       - task: check-binary
         vars:
           BINARY: go
           INSTALL_DOC: https://go.dev/doc/install
     cmds:
-      - go test -count=1 -parallel 1 {{.GO_PACKAGES}}
+      - go tool golangci-lint fmt {{.GO_PACKAGES}}
 
   build:
     desc: Build
@@ -93,6 +83,27 @@ tasks:
           INSTALL_DOC: https://go.dev/doc/install
     cmds:
       - go build ./cmd/synac/*.go
+
+  test:
+    desc: Test
+    deps:
+      - task: check-binary
+        vars:
+          BINARY: go
+          INSTALL_DOC: https://go.dev/doc/install
+    cmds:
+      - go test -count=1 -parallel 1 {{.GO_PACKAGES}}
+
+  coverage:
+    desc: Coverage
+    deps:
+      - task: check-binary
+        vars:
+          BINARY: go
+          INSTALL_DOC: https://go.dev/doc/install
+    cmds:
+      - go test -count=1 -parallel 1 -covermode=atomic -coverprofile=coverage.out ./...
+      - go tool cover -func=coverage.out
 
   run:
     desc: Run synac

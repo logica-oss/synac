@@ -9,6 +9,8 @@ concurrency:
   group: verify-app-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions: {}
+
 jobs:
   verify-app:
     name: Verify (App)
@@ -16,7 +18,7 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
-      actions: read
+      actions: read # Lets the wait step poll the autofix workflow run
     env:
       GOLANGCI_LINT_VERSION: "v2.14.0"
     steps:
@@ -39,6 +41,7 @@ jobs:
         uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
         with:
           version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Lint
         uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
@@ -48,3 +51,37 @@ jobs:
         run: task build
       - name: Test
         run: task test
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write # Tokenless upload authentication to Codecov via OIDC
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: |
+            go.sum
+            tools/go.sum
+      - name: Setup Task
+        uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Coverage
+        run: task coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          files: ./coverage.out
+          disable_search: true
+          use_oidc: true
+          fail_ci_if_error: true

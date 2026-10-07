@@ -9,6 +9,8 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
+permissions: {}
+
 jobs:
   release:
     name: Release
@@ -16,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: write
-      pull-requests: read
+      contents: write # Lets the release action create tags and GitHub releases
+      pull-requests: read # Reads the pull requests that the release notes link to
     outputs:
       tag: ${{ steps.release.outputs.tag }}
     steps:
@@ -40,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
-      contents: write
+      contents: write # Lets GoReleaser upload the release assets
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

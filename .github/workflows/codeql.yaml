@@ -19,6 +19,12 @@ on:
   schedule:
     - cron: "23 4 * * 3"
 
+concurrency:
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
@@ -30,14 +36,9 @@ jobs:
     runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
     timeout-minutes: 30
     permissions:
-      # required for all workflows
-      security-events: write
-
-      # required to fetch internal or private CodeQL packs
-      packages: read
-
-      # only required for workflows in private repositories
-      actions: read
+      security-events: write # Uploads the CodeQL analysis results
+      packages: read # Fetches internal or private CodeQL packs
+      actions: read # Required in private repositories to read workflow runs
       contents: read
 
     strategy:

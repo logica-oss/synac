@@ -9,6 +9,8 @@ concurrency:
   group: verify-app-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions: {}
+
 jobs:
   verify-app:
     name: Verify (App)
@@ -16,7 +18,7 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
-      actions: read
+      actions: read # Lets the wait step poll the autofix workflow run
     env:
       GOLANGCI_LINT_VERSION: "v2.14.0"
     steps:

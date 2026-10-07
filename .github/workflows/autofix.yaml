@@ -9,6 +9,8 @@ concurrency:
   group: autofix-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions: {}
+
 jobs:
   autofix:
     name: Autofix

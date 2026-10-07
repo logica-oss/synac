@@ -1,5 +1,7 @@
 # synac
 
+[![codecov](https://codecov.io/gh/logica-oss/synac/graph/badge.svg)](https://codecov.io/gh/logica-oss/synac)
+
 Sync agent configs from canonical sources, ported from `sync-agent-config.sh`.
 
 ## Usage

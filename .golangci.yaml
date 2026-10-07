@@ -3,38 +3,38 @@ version: "2"
 linters:
   default: none
   enable:
-    - arangolint
+    # - arangolint # unused product-specific linter
     - asasalint
     - asciicheck
     - bidichk
     - bodyclose
     - canonicalheader
-    # - clickhouselint # ClickHouse-specific, not applicable here
+    # - clickhouselint # unused product-specific linter
     - containedctx
     - contextcheck
     - copyloopvar
     - cyclop
     - decorder
     # - depguard # overlaps with gomodguard_v2
-    # - dogsled # flags excessive blank identifiers, rarely relevant here
+    - dogsled
     - dupl
     - dupword
     - durationcheck
     - embeddedstructfieldcheck
-    - err113
+    # - err113 # wrapped dynamic errors with %w are the established pattern here
     - errcheck
     - errchkjson
     - errname
     - errorlint
     - exhaustive
-    # - exhaustruct_v5 # partial initialization is legitimate for this tool
+    # - exhaustruct_v5 # partial initialization is legitimate
     - exptostd
     - fatcontext
     - forbidigo
     - forcetypeassert
     - funcorder
     - funlen
-    - ginkgolinter
+    # - ginkgolinter # unused product-specific linter
     - gocheckcompilerdirectives
     - gochecknoglobals
     - gochecknoinits
@@ -43,8 +43,8 @@ linters:
     - goconst
     - gocritic
     - gocyclo
-    # - godoclint # conflicts with revive package-comments policy
-    # - godot # requires period at comment end, large existing diff
+    - godoclint
+    # - godot # comments without periods are intentional
     - godox
     - goheader
     - gomoddirectives
@@ -79,27 +79,27 @@ linters:
     - nlreturn
     - noctx
     # - noinlineerr # conflicts with idiomatic inline error handling
-    - nolintlint
+    # - nolintlint # allow local //nolint with reasons
     - nonamedreturns
     - nosprintfhostport
     - paralleltest
     - perfsprint
     - prealloc
     - predeclared
-    - promlinter
-    - protogetter
+    # - promlinter # unused product-specific linter
+    # - protogetter # unused product-specific linter
     - reassign
     - recvcheck
     - revive
     - rowserrcheck
     - sloglint
-    - spancheck
+    # - spancheck # unused product-specific linter
     - sqlclosecheck
     - staticcheck
     - tagalign
     - tagliatelle
     - testableexamples
-    - testifylint
+    # - testifylint # unused product-specific linter
     - testpackage
     - thelper
     - tparallel
@@ -113,28 +113,22 @@ linters:
     - wastedassign
     - whitespace
     - wrapcheck
-    # - wsl_v5 # overlaps with whitespace, style preference varies
-    - zerologlint
+    - wsl_v5
+    # - zerologlint # unused product-specific linter
 
   settings:
     cyclop:
       max-complexity: 15
-    gomoddirectives:
-      replace-local: true
     gosec:
       excludes:
-        - G204
         - G301
+        - G302
+        - G304
         - G306
-    ireturn:
-      allow:
-        - anon
-        - error
-        - empty
-        - stdlib
-        - generic
-    lll:
-      line-length: 120
+    mnd:
+      ignored-numbers:
+        - "0o755"
+        - "0o644"
     staticcheck:
       checks:
         - all
@@ -142,21 +136,34 @@ linters:
       ignore-names:
         - tt
         - ok
-        - tx
-        - id
-        - db
-        - to
         - i
     wsl_v5:
-      allow-first-in-block: true
-      allow-whole-block: false
-      branch-max-lines: 2
+      default: all
+      disable:
+        - assign
+        - expr
+        - if
+        - range
+        - for
+        - after-block
+        - after-decl
+        - after-expr
       case-max-lines: 1
-      enable:
-        - err
     wrapcheck:
-      ignore-sigs:
-        - .WithStack(
+      ignore-package-globs:
+        - github.com/logica-oss/synac/*
+
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - funlen
+          - goconst
+          - lll
+          - maintidx
+      - path: 0_export_test\.go
+        linters:
+          - gochecknoglobals
 
 formatters:
   enable:

@@ -10,7 +10,7 @@ tool (
 )
 
 require (
-	github.com/bobg/mingo v0.17.0
+	github.com/bobg/mingo v0.17.1
 	github.com/go-git/go-billy/v5 v5.9.2
 	github.com/go-git/go-git/v5 v5.19.3
 	github.com/golangci/golangci-lint/v2 v2.14.0

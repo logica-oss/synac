@@ -54,6 +54,30 @@ tasks:
     cmds:
       - go tool golangci-lint run {{.GO_PACKAGES}}
 
+  lint-sarif:
+    desc: Lint and write SARIF for GitHub code scanning
+    vars:
+      SARIF_CONFIG: .golangci-sarif.yaml
+      SARIF_REPORT: lint.sarif
+      SARIF_OUTPUT: |
+        output:
+          formats:
+            text:
+              path: stdout
+            sarif:
+              path: {{.SARIF_REPORT}}
+    deps:
+      - task: check-binary
+        vars:
+          BINARY: go
+          INSTALL_DOC: https://go.dev/doc/install
+    cmds:
+      - |
+        trap 'rm -f "{{.SARIF_CONFIG}}"' EXIT
+        cp .golangci.yaml "{{.SARIF_CONFIG}}"
+        printf '\n%s' "{{.SARIF_OUTPUT}}" >> "{{.SARIF_CONFIG}}"
+        go tool golangci-lint run --config "{{.SARIF_CONFIG}}" {{.GO_PACKAGES}}
+
   lint-fix:
     desc: Lint with fix
     deps:

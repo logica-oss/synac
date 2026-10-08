@@ -13,6 +13,10 @@ coverage.html
 *.test
 *.out
 
+# Lint artifacts
+*.sarif
+.golangci-sarif.yaml
+
 # Workspace checksums
 go.work.sum
 

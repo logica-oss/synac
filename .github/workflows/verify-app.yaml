@@ -19,8 +19,6 @@ jobs:
     permissions:
       contents: read
       actions: read # Lets the wait step poll the autofix workflow run
-    env:
-      GOLANGCI_LINT_VERSION: "v2.14.0"
     steps:
       - name: Wait for autofix
         uses: logica-oss/actions-toolkit/wait-for-workflow@bd5176306ecb8bed535720b6101fadd3cc14a73e # v1.1.0
@@ -42,10 +40,14 @@ jobs:
         with:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Resolve golangci-lint version
+        id: golangci-lint-version
+        working-directory: tools
+        run: echo "version=$(go list -m -f '{{.Version}}' github.com/golangci/golangci-lint/v2)" >> "$GITHUB_OUTPUT"
       - name: Lint
         uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
-          version: ${{ env.GOLANGCI_LINT_VERSION }}
+          version: ${{ steps.golangci-lint-version.outputs.version }}
           args: ./... ./tools/...
       - name: Build
         run: task build

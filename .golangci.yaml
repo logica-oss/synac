@@ -167,6 +167,7 @@ linters:
 
 formatters:
   enable:
+    - goimports
     - gci
     - gofumpt
   settings:

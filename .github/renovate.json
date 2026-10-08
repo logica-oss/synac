@@ -8,16 +8,6 @@
   "rebaseWhen": "conflicted",
   "gitIgnoredAuthors": ["114827586+autofix-ci[bot]@users.noreply.github.com"],
   "postUpdateOptions": ["gomodUpdateImportPaths", "gomodTidy"],
-  "customManagers": [
-    {
-      "description": "Track the pinned golangci-lint version in verify-app.yaml",
-      "customType": "regex",
-      "managerFilePatterns": ["/^.github/workflows/verify-app\\.yaml$/"],
-      "matchStrings": ["GOLANGCI_LINT_VERSION: \"v(?<currentValue>\\d+\\.\\d+\\.\\d+)\""],
-      "datasourceTemplate": "github-releases",
-      "depNameTemplate": "golangci/golangci-lint"
-    }
-  ],
   "packageRules": [
     {
       "description": "Upgrade go indirect dependencies in the root module",

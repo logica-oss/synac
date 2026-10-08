@@ -20,8 +20,9 @@
   ],
   "packageRules": [
     {
-      "description": "Upgrade go indirect dependencies",
+      "description": "Upgrade go indirect dependencies in the root module",
       "matchManagers": ["gomod"],
+      "matchFileNames": ["go.mod"],
       "matchDepTypes": ["indirect"],
       "enabled": true
     },

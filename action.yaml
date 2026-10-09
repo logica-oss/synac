@@ -96,6 +96,7 @@ runs:
         if [[ -n "${drift}" ]]; then
           echo "::group::Agent configs are out of date" >&2
           git --no-pager diff --no-color >&2
+          echo "::endgroup::" >&2
           echo "::error::Run synac locally and commit the result." >&2
           echo "changed=true" >> "${GITHUB_OUTPUT}"
           exit 1

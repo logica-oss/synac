@@ -107,11 +107,11 @@ jobs:
           git push
 ```
 
-Everything except `verify` belongs in `.synac.yaml`. The action resolves
+Put persistent synac settings in `.synac.yaml`. The action resolves
 the repository root from `GITHUB_WORKSPACE` and discovers the config file
-there, so there is no input for either. Both inputs resolve above
-`.synac.yaml`, so `args` can override a setting for a single job without
-editing the file.
+there, so there is no input for either. Use `args` to override a setting
+for a single job without editing the file. Flags in `args` take
+precedence over `.synac.yaml`.
 
 ## Config
 

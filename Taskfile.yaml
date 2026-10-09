@@ -115,6 +115,16 @@ tasks:
     cmds:
       - go run ./cmd/synac {{.CLI_ARGS}}
 
+  trivy:
+    desc: Scan the repository for vulnerabilities and secrets
+    deps:
+      - task: check-binary
+        vars:
+          BINARY: trivy
+          INSTALL_DOC: brew install trivy
+    cmds:
+      - trivy repo {{.CLI_ARGS}} .
+
   default:
     desc: Run all tasks
     cmds:
@@ -123,3 +133,4 @@ tasks:
       - task: format
       - task: build
       - task: test
+      - task: trivy

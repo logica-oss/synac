@@ -1,0 +1,108 @@
+name: synac
+description: Sync agent configs from canonical sources, and fail when they are out of date.
+author: Takuto Nagami
+
+inputs:
+  verify:
+    description: >
+      Fail the job when synac changes a file, so CI catches agent configs that drifted from their canonical sources.
+      Set to "false" to sync and let the caller commit the result.
+    required: false
+    default: "true"
+  args:
+    description: >
+      Extra flags appended to the synac invocation, for example "--skills-source off".
+      Resolves above .synac.yaml.
+    required: false
+    default: ""
+
+outputs:
+  changed:
+    description: '"true" when verify detected a drift, otherwise "false".'
+    value: ${{ steps.verify.outputs.changed }}
+
+runs:
+  using: composite
+  steps:
+    - name: Download synac
+      id: download
+      shell: bash
+      env:
+        REF: ${{ github.action_ref }}
+        REPO: ${{ github.action_repository }}
+        OS: ${{ runner.os }}
+        ARCH: ${{ runner.arch }}
+      run: |
+        set -euo pipefail
+
+        goos="$(printf '%s' "${OS}" | tr '[:upper:]' '[:lower:]')"
+        [[ "${goos}" == "macos" ]] && goos="darwin"
+        goarch="$(printf '%s' "${ARCH}" | tr '[:upper:]' '[:lower:]' | sed 's/x64/amd64/')"
+        target="${goos}_${goarch}"
+        [[ "${target}" =~ ^(linux|darwin)_(amd64|arm64)$ ]] || {
+          echo "::error::synac publishes no binary for ${OS}/${ARCH}."
+          exit 1
+        }
+        asset="synac_${REF#v}_${target}.tar.gz"
+
+        dir="${RUNNER_TEMP}/synac"
+        base="https://github.com/${REPO}/releases/download/${REF}"
+        rm -rf "${dir}"
+        mkdir -p "${dir}"
+        curl -fsSL --retry 3 -o "${dir}/${asset}" "${base}/${asset}"
+        curl -fsSL --retry 3 -o "${dir}/checksums.txt" "${base}/synac_${REF#v}_checksums.txt"
+
+        # openssl dgst is the only sha256 helper that behaves the same on the Linux and macOS images,
+        # where sha256sum is GNU on one and BSD on the other.
+        expected="$(awk -v a="${asset}" '$2 == a { print $1 }' "${dir}/checksums.txt")"
+        actual="$(openssl dgst -sha256 "${dir}/${asset}" | awk '{ print $NF }')"
+        if [[ -z "${expected}" || "${actual}" != "${expected}" ]]; then
+          echo "::error::synac ${asset} is missing from the release or its checksum mismatched. Is ${REF} released?"
+          exit 1
+        fi
+
+        tar -xzf "${dir}/${asset}" -C "${dir}"
+        echo "binary=${dir}/synac" >> "${GITHUB_OUTPUT}"
+
+    - name: Sync
+      shell: bash
+      env:
+        SYNAC: ${{ steps.download.outputs.binary }}
+        EXTRA_ARGS: ${{ inputs.args }}
+      run: |
+        set -euo pipefail
+
+        # EXTRA_ARGS is left unquoted so it word-splits into separate arguments.
+        "${SYNAC}" ${EXTRA_ARGS:-}
+
+    - name: Verify
+      id: verify
+      shell: bash
+      env:
+        VERIFY: ${{ inputs.verify }}
+      run: |
+        set -euo pipefail
+
+        # Comparing inside the shell keeps a typo from silently skipping the check,
+        # which an "if: inputs.verify == 'true'" would allow.
+        case "$(printf '%s' "${VERIFY}" | tr '[:upper:]' '[:lower:]')" in false | no | 0)
+          echo "changed=false" >> "${GITHUB_OUTPUT}"
+          exit 0
+          ;;
+        esac
+
+        # git diff misses untracked files, and synac creates them on a first run.
+        drift="$(git status --porcelain)"
+        if [[ -n "${drift}" ]]; then
+          echo "::group::Agent configs are out of date" >&2
+          git --no-pager diff --no-color >&2
+          echo "::error::Run synac locally and commit the result." >&2
+          echo "changed=true" >> "${GITHUB_OUTPUT}"
+          exit 1
+        fi
+
+        echo "changed=false" >> "${GITHUB_OUTPUT}"
+
+branding:
+  icon: refresh-cw
+  color: green

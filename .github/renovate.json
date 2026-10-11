@@ -22,6 +22,12 @@
       "matchDepTypes": ["indirect"],
       "matchUpdateTypes": ["major"],
       "enabled": false
+    },
+    {
+      "description": "Release when a production module dependency changes",
+      "matchDepTypes": ["require"],
+      "matchFileNames": ["go.mod"],
+      "addLabels": ["patch"]
     }
   ]
 }

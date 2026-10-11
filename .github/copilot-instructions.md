@@ -12,4 +12,3 @@
 ## Check
 
 - After any Go change: `task lint`, `task build`, `task test`.
-- After any Actions change: `actionlint`, `ghalint run`, `ghalint run-action`, `zizmor`.

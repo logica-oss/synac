@@ -14,6 +14,9 @@ import (
 	"github.com/logica-oss/synac/pkg/sync"
 )
 
+// version is injected at build time via ldflags.
+var version = "dev" //nolint:gochecknoglobals // build-time injection requires a package variable.
+
 func newLogger(format string, errWriter bool) *slog.Logger {
 	writer := os.Stdout
 	if errWriter {
@@ -35,6 +38,15 @@ func main() {
 
 		fmt.Fprintf(os.Stderr, "synac: %v\n", err)
 		os.Exit(1)
+	}
+
+	if cfg.Version {
+		if _, err := fmt.Fprintln(os.Stdout, version); err != nil {
+			fmt.Fprintf(os.Stderr, "synac: print version: %v\n", err)
+			os.Exit(1)
+		}
+
+		return
 	}
 
 	log := newLogger(cfg.LogFormat, false)

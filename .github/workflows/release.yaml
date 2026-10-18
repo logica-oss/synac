@@ -43,6 +43,11 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: write # Lets GoReleaser upload the release assets
+      id-token: write # Lets attest mint an OIDC token for Sigstore signing
+      attestations: write # Lets attest persist the provenance attestation
+    env:
+      GORELEASER_VERSION: "v2.18.3"
+      SYFT_VERSION: "v1.54.0"
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -55,10 +60,70 @@ jobs:
         with:
           go-version-file: go.mod
           cache: false
+      - name: Install Syft
+        id: syft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          install_dir="$(mktemp -d "${RUNNER_TEMP}/syft-bin.XXXXXX")"
+          cd "${install_dir}"
+
+          gh release download "${SYFT_VERSION}" --repo anchore/syft \
+            --pattern "syft_${SYFT_VERSION#v}_linux_amd64.tar.gz" \
+            --pattern "syft_${SYFT_VERSION#v}_checksums.txt"
+
+          tarball="syft_${SYFT_VERSION#v}_linux_amd64.tar.gz"
+          grep " ${tarball}$" "syft_${SYFT_VERSION#v}_checksums.txt" | sha256sum -c -
+          tar -xzf "${tarball}" syft
+
+          echo "cmd=${install_dir}/syft" >> "${GITHUB_OUTPUT}"
+      - name: Add Syft to PATH
+        env:
+          SYFT_CMD: ${{ steps.syft.outputs.cmd }}
+        run: dirname "${SYFT_CMD}" >> "${GITHUB_PATH}"
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
         with:
-          version: latest
+          version: ${{ env.GORELEASER_VERSION }}
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Attest release assets
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-checksums: ./dist/*_checksums.txt
+
+  floating-tags:
+    name: Floating tags
+    needs: [release, goreleaser]
+    if: needs.release.outputs.tag != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write # Lets the job move the floating major/minor tags
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Move floating tags
+        env:
+          TAG: ${{ needs.release.outputs.tag }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if ! [[ "${TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Skipping floating tags for non-stable tag: ${TAG}"
+            exit 0
+          fi
+
+          major="${TAG%%.*}"
+          minor="$(printf '%s' "${TAG}" | cut -d. -f1,2)"
+          sha="$(git rev-parse "${TAG}^{commit}")"
+          git tag -f "${major}" "${sha}"
+          git tag -f "${minor}" "${sha}"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')" push --force origin "refs/tags/${major}" "refs/tags/${minor}"

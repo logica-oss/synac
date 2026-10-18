@@ -239,3 +239,16 @@ func TestLoad(t *testing.T) {
 		})
 	}
 }
+
+func TestLoadVersion(t *testing.T) {
+	for _, args := range [][]string{{"--version"}, {"-v"}} {
+		t.Run("success ("+args[0]+")", func(t *testing.T) {
+			clearSynacEnv(t)
+			t.Setenv("GITHUB_WORKSPACE", "")
+
+			cfg, err := config.Load(args)
+			its.Nil[error]().Match(err).OrError(t)
+			its.EqEq(true).Match(cfg.Version).OrError(t)
+		})
+	}
+}

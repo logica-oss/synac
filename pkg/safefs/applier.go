@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/k1LoW/errors"
-	"github.com/otiai10/copy"
+	cp "github.com/otiai10/copy"
 )
 
 // Applier writes filesystem changes, honoring dry-run.
@@ -144,9 +144,9 @@ func (a *Applier) CopyDir(src, dest, destRel string) error {
 		return nil
 	}
 
-	return errors.WithStack(copy.Copy(src, dest, copy.Options{
-		OnSymlink: func(string) copy.SymlinkAction {
-			return copy.Shallow
+	return errors.WithStack(cp.Copy(src, dest, cp.Options{
+		OnSymlink: func(string) cp.SymlinkAction {
+			return cp.Shallow
 		},
 	}))
 }

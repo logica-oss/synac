@@ -17,6 +17,10 @@ func Load(args []string) (Config, error) {
 		return Config{}, errors.WithStack(fmt.Errorf("parse flags: %w", err))
 	}
 
+	if version, _ := flagSet.GetBool(keyVersion); version {
+		return Config{Version: true}, nil
+	}
+
 	explicitRoot := resolveExplicitRoot(flagSet)
 
 	conf := newViper(flagSet, explicitRoot)

@@ -23,8 +23,8 @@ const (
 
 // Config holds synac settings.
 type Config struct {
-	// Root stays out of the config file to keep relative resolution unambiguous.
-	Root               string `mapstructure:"-"`
+	Root               string `mapstructure:"-"` // Stays out of the config file to keep relative resolution unambiguous.
+	Version            bool   `mapstructure:"-"` // Stays out of the config file because it is a CLI-only flag.
 	DryRun             bool   `mapstructure:"dry-run"`
 	LogFormat          string `mapstructure:"log-format"`
 	ProjectWideSource  string `mapstructure:"project-wide-source"`
@@ -34,6 +34,7 @@ type Config struct {
 
 const (
 	keyRoot               = "root"
+	keyVersion            = "version"
 	keyDryRun             = "dry-run"
 	keyLogFormat          = "log-format"
 	keyProjectWideSource  = "project-wide-source"
@@ -55,6 +56,7 @@ func flags() *pflag.FlagSet {
 
 	flagSet.String(keyConfig, "", "config file path (default: <root>/.synac.yaml or .synac.json)")
 	flagSet.String(keyRoot, "", "repository root (default: $GITHUB_WORKSPACE or git top level)")
+	flagSet.Bool(keyVersion, false, "print version and exit")
 	flagSet.Bool(keyDryRun, false, "print planned changes without writing")
 	flagSet.String(keyLogFormat, logFormatConsole, "log format: console or json")
 	flagSet.String(keyProjectWideSource, SourceGithub, "project-wide source: github, agents, or off")

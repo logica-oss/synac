@@ -93,6 +93,7 @@ jobs:
       - name: Move floating tags
         env:
           TAG: ${{ needs.release.outputs.tag }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
 
@@ -106,4 +107,5 @@ jobs:
           sha="$(git rev-parse "${TAG}^{commit}")"
           git tag -f "${major}" "${sha}"
           git tag -f "${minor}" "${sha}"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git push --force origin "refs/tags/${major}" "refs/tags/${minor}"

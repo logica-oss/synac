@@ -23,8 +23,8 @@ const (
 
 // Config holds synac settings.
 type Config struct {
-	// Root stays out of the config file to keep relative resolution unambiguous.
-	Root               string `mapstructure:"-"`
+	Root               string `mapstructure:"-"` // Stays out of the config file to keep relative resolution unambiguous.
+	Version            bool   `mapstructure:"-"` // Stays out of the config file because it is a CLI-only flag.
 	DryRun             bool   `mapstructure:"dry-run"`
 	LogFormat          string `mapstructure:"log-format"`
 	ProjectWideSource  string `mapstructure:"project-wide-source"`
@@ -34,6 +34,7 @@ type Config struct {
 
 const (
 	keyRoot               = "root"
+	keyVersion            = "version"
 	keyDryRun             = "dry-run"
 	keyLogFormat          = "log-format"
 	keyProjectWideSource  = "project-wide-source"
@@ -53,9 +54,10 @@ func setDefaults(v *viper.Viper) {
 func flags() *pflag.FlagSet {
 	flagSet := pflag.NewFlagSet("synac", pflag.ContinueOnError)
 
-	flagSet.String(keyConfig, "", "config file path (default: <root>/.synac.yaml or .synac.json)")
+	flagSet.StringP(keyConfig, "c", "", "config file path (default: <root>/.synac.yaml or .synac.json)")
 	flagSet.String(keyRoot, "", "repository root (default: $GITHUB_WORKSPACE or git top level)")
-	flagSet.Bool(keyDryRun, false, "print planned changes without writing")
+	flagSet.BoolP(keyVersion, "v", false, "print version and exit")
+	flagSet.BoolP(keyDryRun, "n", false, "print planned changes without writing")
 	flagSet.String(keyLogFormat, logFormatConsole, "log format: console or json")
 	flagSet.String(keyProjectWideSource, SourceGithub, "project-wide source: github, agents, or off")
 	flagSet.String(keyPathSpecificSource, SourceGithub, "path-specific source: github, claude, or off")

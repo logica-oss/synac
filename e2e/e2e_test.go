@@ -131,7 +131,7 @@ func TestE2E(t *testing.T) {
 
 	type want struct {
 		code    int
-		files   map[string]string
+		files   map[string][]string
 		missing []string
 		output  string
 	}
@@ -149,10 +149,10 @@ func TestE2E(t *testing.T) {
 			},
 			want: want{
 				code: 0,
-				files: map[string]string{
-					"AGENTS.md":                    "Generated mirror",
-					".claude/rules/foo.md":         "Generated from",
-					".claude/skills/demo/SKILL.md": "Generated from",
+				files: map[string][]string{
+					"AGENTS.md":                    {"Generated mirror", "project-wide content"},
+					".claude/rules/foo.md":         {"Generated from", "path-specific content"},
+					".claude/skills/demo/SKILL.md": {"Generated from", "skills content"},
 				},
 			},
 		},
@@ -219,7 +219,7 @@ func TestE2E(t *testing.T) {
 			},
 			want: want{
 				code:  0,
-				files: map[string]string{"AGENTS.md": "Generated mirror"},
+				files: map[string][]string{"AGENTS.md": {"Generated mirror", "project-wide content"}},
 			},
 		},
 		{
@@ -231,7 +231,7 @@ func TestE2E(t *testing.T) {
 			},
 			want: want{
 				code:  0,
-				files: map[string]string{"AGENTS.md": "Generated mirror"},
+				files: map[string][]string{"AGENTS.md": {"Generated mirror", "project-wide content"}},
 			},
 		},
 		{
@@ -262,10 +262,12 @@ func TestE2E(t *testing.T) {
 				its.StringContaining(tt.want.output).Match(got.stdout + got.stderr).OrError(t)
 			}
 
-			for rel, wantSub := range tt.want.files {
+			for rel, wantSubs := range tt.want.files {
 				content, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
 				its.Nil[error]().Match(err).OrError(t)
-				its.StringContaining(wantSub).Match(string(content)).OrError(t)
+				for _, wantSub := range wantSubs {
+					its.StringContaining(wantSub).Match(string(content)).OrError(t)
+				}
 			}
 
 			for _, rel := range tt.want.missing {

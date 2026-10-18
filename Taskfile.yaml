@@ -92,7 +92,7 @@ tasks:
           BINARY: go
           INSTALL_DOC: https://go.dev/doc/install
     cmds:
-      - go test -count=1 -parallel 1 {{.GO_PACKAGES}}
+      - go test {{.GO_PACKAGES}}
 
   coverage:
     desc: Coverage
@@ -102,7 +102,7 @@ tasks:
           BINARY: go
           INSTALL_DOC: https://go.dev/doc/install
     cmds:
-      - go test -count=1 -parallel 1 -covermode=atomic -coverprofile=coverage.out ./...
+      - go test -covermode=atomic -coverprofile=coverage.out ./...
       - go tool cover -func=coverage.out
 
   run:

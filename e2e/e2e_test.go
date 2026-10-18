@@ -172,11 +172,19 @@ func TestE2E(t *testing.T) {
 		{
 			name: "success (all off)",
 			args: args{
+				fixture: "all-categories",
 				argv: func(root string) []string {
 					return []string{"--root", root, "--project-wide-source", "off", "--path-specific-source", "off", "--skills-source", "off"}
 				},
 			},
-			want: want{code: 0},
+			want: want{
+				code: 0,
+				missing: []string{
+					"AGENTS.md",
+					".claude/rules/foo.md",
+					".claude/skills/demo/SKILL.md",
+				},
+			},
 		},
 		{
 			name: "fail (bad instruction)",
@@ -224,6 +232,17 @@ func TestE2E(t *testing.T) {
 			want: want{
 				code:  0,
 				files: map[string]string{"AGENTS.md": "Generated mirror"},
+			},
+		},
+		{
+			name: "success (config disables all)",
+			args: args{
+				fixture: "precedence",
+				argv:    func(root string) []string { return []string{"--root", root} },
+			},
+			want: want{
+				code:    0,
+				missing: []string{"AGENTS.md"},
 			},
 		},
 	}

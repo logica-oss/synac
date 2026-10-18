@@ -57,9 +57,26 @@ jobs:
         with:
           go-version-file: go.mod
           cache: false
-      - name: Download Syft
+      - name: Install Syft
         id: syft
-        uses: anchore/sbom-action/download-syft@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SYFT_VERSION: "v1.54.0"
+        run: |
+          set -euo pipefail
+
+          install_dir="$(mktemp -d "${RUNNER_TEMP}/syft-bin.XXXXXX")"
+          cd "${install_dir}"
+
+          gh release download "${SYFT_VERSION}" --repo anchore/syft \
+            --pattern "syft_${SYFT_VERSION#v}_linux_amd64.tar.gz" \
+            --pattern "syft_${SYFT_VERSION#v}_checksums.txt"
+
+          tarball="syft_${SYFT_VERSION#v}_linux_amd64.tar.gz"
+          grep " ${tarball}$" "syft_${SYFT_VERSION#v}_checksums.txt" | sha256sum -c -
+          tar -xzf "${tarball}" syft
+
+          echo "cmd=${install_dir}/syft" >> "${GITHUB_OUTPUT}"
       - name: Add Syft to PATH
         env:
           SYFT_CMD: ${{ steps.syft.outputs.cmd }}

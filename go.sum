@@ -38,8 +38,8 @@ github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
 github.com/subosito/gotenv v1.6.0 h1:9NlTDc1FTs4qu0DDq7AEtTPNw6SVm7uBMsUCUjABIf8=
 github.com/subosito/gotenv v1.6.0/go.mod h1:Dk4QP5c2W3ibzajGcXpNraDfq2IrhjMIvMSWPKKo0FU=
-github.com/youta-t/its v0.6.3 h1:vBq/qHYrX/JEPg2BrMdZPFaNMUdbPl9XNlCiD60pPrg=
-github.com/youta-t/its v0.6.3/go.mod h1:/NfUEWPpoC6tNyqDKiPkb9pGwtmhhzCJYxJCSkj771E=
+github.com/youta-t/its v0.6.4 h1:UpfJV+XCPgc33SD3iHt9o2y55ZCvApnYcliTLAa/kKQ=
+github.com/youta-t/its v0.6.4/go.mod h1:/NfUEWPpoC6tNyqDKiPkb9pGwtmhhzCJYxJCSkj771E=
 go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=
 go.yaml.in/yaml/v3 v3.0.5/go.mod h1:HVTZu1O7/Vkt2N+BFy8Zza+lnLsABggaTM2ZpNIGuKg=
 golang.org/x/mod v0.42.0 h1:ICeL3t2L30ljSPHHxDnR4fqVcBt/zR2zJAb9juavmQg=

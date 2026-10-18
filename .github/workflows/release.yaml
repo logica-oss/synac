@@ -107,5 +107,4 @@ jobs:
           sha="$(git rev-parse "${TAG}^{commit}")"
           git tag -f "${major}" "${sha}"
           git tag -f "${minor}" "${sha}"
-          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force origin "refs/tags/${major}" "refs/tags/${minor}"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')" push --force origin "refs/tags/${major}" "refs/tags/${minor}"

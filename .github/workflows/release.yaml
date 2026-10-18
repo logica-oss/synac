@@ -55,14 +55,6 @@ jobs:
         with:
           go-version-file: go.mod
           cache: false
-      - name: Cache Go
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: go-${{ runner.os }}-root-${{ hashFiles('go.sum') }}
-          restore-keys: go-${{ runner.os }}-root-
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
         with:

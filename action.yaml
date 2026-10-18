@@ -73,6 +73,7 @@ runs:
         set -euo pipefail
 
         # EXTRA_ARGS is left unquoted so it word-splits into separate arguments.
+        # shellcheck disable=SC2086 # word-splitting is intentional here.
         "${SYNAC}" ${EXTRA_ARGS:-}
 
     - name: Verify

@@ -30,7 +30,7 @@ jobs:
           persist-credentials: false
       - name: Create release
         id: release
-        uses: logica-oss/actions-toolkit/release@5c92317e3cd93cc23a2c8c25e82e23783b18f186 # v1.1.1
+        uses: logica-oss/actions-toolkit/release@497746a5e6d64835c883466163470ed7d71502b8 # v1.2.1
         with:
           initial-version: v0.1.0
           create-release: "false"
@@ -55,14 +55,6 @@ jobs:
         with:
           go-version-file: go.mod
           cache: false
-      - name: Cache Go
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: go-${{ runner.os }}-root-${{ hashFiles('go.sum') }}
-          restore-keys: go-${{ runner.os }}-root-
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
         with:

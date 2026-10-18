@@ -47,6 +47,7 @@ jobs:
       attestations: write # Lets attest persist the provenance attestation
     env:
       GORELEASER_VERSION: "v2.18.3"
+      SYFT_VERSION: "v1.54.0"
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -63,7 +64,6 @@ jobs:
         id: syft
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SYFT_VERSION: "v1.54.0"
         run: |
           set -euo pipefail
 

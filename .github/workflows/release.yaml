@@ -96,6 +96,11 @@ jobs:
         run: |
           set -euo pipefail
 
+          if ! [[ "${TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Skipping floating tags for non-stable tag: ${TAG}"
+            exit 0
+          fi
+
           major="${TAG%%.*}"
           minor="$(printf '%s' "${TAG}" | cut -d. -f1,2)"
           sha="$(git rev-parse "${TAG}^{commit}")"

@@ -90,10 +90,23 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Resolve checksums file
+        id: checksums
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          files=(./dist/*_checksums.txt)
+          if [[ ${#files[@]} -ne 1 ]]; then
+            echo "Expected exactly one checksums file in ./dist, found ${#files[@]}" >&2
+            exit 1
+          fi
+
+          echo "path=${files[0]}" >> "${GITHUB_OUTPUT}"
       - name: Attest release assets
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
-          subject-checksums: ./dist/*_checksums.txt
+          subject-checksums: ${{ steps.checksums.outputs.path }}
 
   floating-tags:
     name: Floating tags

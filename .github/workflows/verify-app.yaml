@@ -21,7 +21,7 @@ jobs:
       actions: read # Lets the wait step poll the autofix workflow run
     steps:
       - name: Wait for autofix
-        uses: logica-oss/actions-toolkit/wait-for-workflow@497746a5e6d64835c883466163470ed7d71502b8 # v1.2.1
+        uses: logica-oss/actions-toolkit/wait-for-workflow@f709233adc19c1e133595ef3776fa5328d2632c9 # v1.2.2
         with:
           workflow-id: autofix.yaml
       - name: Checkout

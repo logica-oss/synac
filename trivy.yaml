@@ -1,3 +1,4 @@
-scanners:
-  - vuln
-  - secret
+scan:
+  scanners:
+    - vuln
+    - secret

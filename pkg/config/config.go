@@ -16,9 +16,10 @@ const (
 	SourceOff    = "off"
 )
 
+// LogFormat values for log output.
 const (
-	logFormatConsole = "console"
-	logFormatJSON    = "json"
+	LogFormatConsole = "console"
+	LogFormatJSON    = "json"
 )
 
 // Config holds synac settings.
@@ -45,7 +46,7 @@ const (
 
 func setDefaults(v *viper.Viper) {
 	v.SetDefault(keyDryRun, false)
-	v.SetDefault(keyLogFormat, logFormatConsole)
+	v.SetDefault(keyLogFormat, LogFormatConsole)
 	v.SetDefault(keyProjectWideSource, SourceGithub)
 	v.SetDefault(keyPathSpecificSource, SourceGithub)
 	v.SetDefault(keySkillsSource, SourceAgents)
@@ -58,7 +59,7 @@ func flags() *pflag.FlagSet {
 	flagSet.String(keyRoot, "", "repository root (default: $GITHUB_WORKSPACE or git top level)")
 	flagSet.BoolP(keyVersion, "v", false, "print version and exit")
 	flagSet.BoolP(keyDryRun, "n", false, "print planned changes without writing")
-	flagSet.String(keyLogFormat, logFormatConsole, "log format: console or json")
+	flagSet.String(keyLogFormat, LogFormatConsole, "log format: console or json")
 	flagSet.String(keyProjectWideSource, SourceGithub, "project-wide source: github, agents, or off")
 	flagSet.String(keyPathSpecificSource, SourceGithub, "path-specific source: github, claude, or off")
 	flagSet.String(keySkillsSource, SourceAgents, "skills source: agents, claude, or off")

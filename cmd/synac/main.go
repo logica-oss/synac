@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"strings"
 
 	"github.com/spf13/pflag"
 
@@ -15,18 +14,26 @@ import (
 )
 
 // version is injected at build time via ldflags.
-var version = "dev" //nolint:gochecknoglobals // build-time injection requires a package variable.
+//
+//nolint:gochecknoglobals // build-time injection requires a package variable.
+var version = "dev"
 
 func newLogger(format string, errWriter bool) *slog.Logger {
 	writer := os.Stdout
 	if errWriter {
 		writer = os.Stderr
 	}
-	if strings.ToLower(format) == "json" {
-		return slog.New(slog.NewJSONHandler(writer, nil))
-	}
 
-	return slog.New(slog.NewTextHandler(writer, nil))
+	switch format {
+	case config.LogFormatJSON:
+		return slog.New(slog.NewJSONHandler(writer, &slog.HandlerOptions{Level: slog.LevelInfo}))
+
+	case config.LogFormatConsole:
+		return slog.New(slog.NewTextHandler(writer, &slog.HandlerOptions{Level: slog.LevelInfo}))
+
+	default:
+		return nil
+	}
 }
 
 func main() {

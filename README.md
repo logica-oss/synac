@@ -66,8 +66,6 @@ Precedence: flag > env > config file > default.
 ## Config
 
 `.synac.yaml` (preferred) or `.synac.json` in the repo root.  
-YAML for humans, JSON for machines.
-
 Precedence: flag > env (`SYNAC_` prefix) > file > default.
 
 ```yaml

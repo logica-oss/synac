@@ -8,7 +8,7 @@
 [![Trivy](https://github.com/logica-oss/synac/actions/workflows/trivy.yaml/badge.svg)](https://github.com/logica-oss/synac/actions/workflows/trivy.yaml)
 [![codecov](https://codecov.io/gh/logica-oss/synac/graph/badge.svg)](https://codecov.io/gh/logica-oss/synac)
 
-**Sync agent configs** from canonical sources.
+**Syn**c **a**gent **c**onfigs from canonical sources
 
 ## What is `synac`?
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"runtime/debug"
 
 	"github.com/spf13/pflag"
 
@@ -17,6 +18,20 @@ import (
 //
 //nolint:gochecknoglobals // build-time injection requires a package variable.
 var version = "dev"
+
+func resolveVersion() string {
+	if version != "" && version != "dev" && version != "(devel)" {
+		return version
+	}
+
+	if info, ok := debug.ReadBuildInfo(); ok {
+		if v := info.Main.Version; v != "" && v != "(devel)" {
+			return v
+		}
+	}
+
+	return version
+}
 
 func newLogger(format string, errWriter bool) *slog.Logger {
 	writer := os.Stdout
@@ -48,7 +63,7 @@ func main() {
 	}
 
 	if cfg.Version {
-		if _, err := fmt.Fprintln(os.Stdout, version); err != nil {
+		if _, err := fmt.Fprintln(os.Stdout, resolveVersion()); err != nil {
 			fmt.Fprintf(os.Stderr, "synac: print version: %v\n", err)
 			os.Exit(1)
 		}

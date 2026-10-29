@@ -1,4 +1,4 @@
-name: synac
+name: "Sync agent configs"
 description: Sync agent configs from canonical sources, and fail when they are out of date.
 author: Takuto Nagami
 

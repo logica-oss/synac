@@ -43,21 +43,41 @@ runs:
           echo "::error::synac publishes no binary for ${OS}/${ARCH}."
           exit 1
         }
-        asset="synac_${REF#v}_${target}.tar.gz"
+
+        # Floating tags (v0, v0.1) have no release assets,
+        # so resolve them to the highest matching stable version first.
+        ref="${REF#refs/tags/}"
+        ver="${ref}"
+        if [[ "${ver}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          :
+        elif [[ "${ver}" =~ ^v[0-9]+(\.[0-9]+)?$ ]]; then
+          prefix="${ver}."
+          tags="$(git ls-remote --tags --sort=v:refname "https://github.com/${REPO}.git" "refs/tags/${prefix}*" || true)"
+          ver="$(printf '%s\n' "${tags}" | grep -v '\^{}' | grep -oE 'refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$' | grep -F "refs/tags/${prefix}" | tail -n 1 | sed 's|.*/||' || true)"
+          if [[ -z "${ver}" ]]; then
+            echo "::error::No stable release found for ${ref}."
+            exit 1
+          fi
+          echo "Resolved ${ref} to ${ver}."
+        else
+          echo "::error::Unsupported ref ${ref}. Use a version tag like v0.1.0 or a floating tag like v0."
+          exit 1
+        fi
+        asset="synac_${ver#v}_${target}.tar.gz"
 
         dir="${RUNNER_TEMP}/synac"
-        base="https://github.com/${REPO}/releases/download/${REF}"
+        base="https://github.com/${REPO}/releases/download/${ver}"
         rm -rf "${dir}"
         mkdir -p "${dir}"
         curl -fsSL --retry 3 -o "${dir}/${asset}" "${base}/${asset}"
-        curl -fsSL --retry 3 -o "${dir}/checksums.txt" "${base}/synac_${REF#v}_checksums.txt"
+        curl -fsSL --retry 3 -o "${dir}/checksums.txt" "${base}/synac_${ver#v}_checksums.txt"
 
         # openssl dgst is the only sha256 helper that behaves the same on the Linux and macOS images,
         # where sha256sum is GNU on one and BSD on the other.
         expected="$(awk -v a="${asset}" '$2 == a { print $1 }' "${dir}/checksums.txt")"
         actual="$(openssl dgst -sha256 "${dir}/${asset}" | awk '{ print $NF }')"
         if [[ -z "${expected}" || "${actual}" != "${expected}" ]]; then
-          echo "::error::synac ${asset} is missing from the release or its checksum mismatched. Is ${REF} released?"
+          echo "::error::synac ${asset} is missing from the release or its checksum mismatched. Is ${ver} released?"
           exit 1
         fi
 

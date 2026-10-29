@@ -104,7 +104,9 @@ jobs:
       - uses: logica-oss/synac@vX.X.X
 ```
 
-Pin a released tag; `@main`/branch/SHA has no binary and fails (resolved from `github.action_ref`).  
+Use a full version tag like `@v0.1.0`, or a floating tag like `@v0`/`@v0.1` (resolved to the highest matching stable release).  
+`@main`/branch/SHA/`@latest` have no release assets, so they fail (resolved from `github.action_ref`).
+
 Supports Linux/macOS on `x64`/`arm64`.
 
 | Input    | Default | Description                                                               |

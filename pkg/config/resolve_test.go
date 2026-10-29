@@ -18,10 +18,10 @@ func TestValidate(t *testing.T) {
 	t.Parallel()
 
 	valid := config.Config{
-		LogFormat:          "console",
-		ProjectWideSource:  "github",
-		PathSpecificSource: "github",
-		SkillsSource:       "agents",
+		LogFormat:          config.LogFormatConsole,
+		ProjectWideSource:  config.SourceGithub,
+		PathSpecificSource: config.SourceGithub,
+		SkillsSource:       config.SourceAgents,
 	}
 
 	type args struct {
@@ -41,20 +41,20 @@ func TestValidate(t *testing.T) {
 		{
 			name: "success (json and off)",
 			args: args{cfg: config.Config{
-				LogFormat:          "json",
-				ProjectWideSource:  "off",
-				PathSpecificSource: "off",
-				SkillsSource:       "off",
+				LogFormat:          config.LogFormatJSON,
+				ProjectWideSource:  config.SourceOff,
+				PathSpecificSource: config.SourceOff,
+				SkillsSource:       config.SourceOff,
 			}},
 			errMatcher: its.Nil[error](),
 		},
 		{
 			name: "success (agents and claude)",
 			args: args{cfg: config.Config{
-				LogFormat:          "console",
-				ProjectWideSource:  "agents",
-				PathSpecificSource: "claude",
-				SkillsSource:       "claude",
+				LogFormat:          config.LogFormatConsole,
+				ProjectWideSource:  config.SourceAgents,
+				PathSpecificSource: config.SourceClaude,
+				SkillsSource:       config.SourceClaude,
 			}},
 			errMatcher: its.Nil[error](),
 		},
@@ -72,7 +72,7 @@ func TestValidate(t *testing.T) {
 			name: "fail (project-wide)",
 			args: args{cfg: config.Config{
 				LogFormat:          valid.LogFormat,
-				ProjectWideSource:  "claude",
+				ProjectWideSource:  config.SourceClaude,
 				PathSpecificSource: valid.PathSpecificSource,
 				SkillsSource:       valid.SkillsSource,
 			}},
@@ -83,7 +83,7 @@ func TestValidate(t *testing.T) {
 			args: args{cfg: config.Config{
 				LogFormat:          valid.LogFormat,
 				ProjectWideSource:  valid.ProjectWideSource,
-				PathSpecificSource: "agents",
+				PathSpecificSource: config.SourceAgents,
 				SkillsSource:       valid.SkillsSource,
 			}},
 			errMatcher: internal.ErrorContaining("invalid path-specific-source"),
@@ -94,7 +94,7 @@ func TestValidate(t *testing.T) {
 				LogFormat:          valid.LogFormat,
 				ProjectWideSource:  valid.ProjectWideSource,
 				PathSpecificSource: valid.PathSpecificSource,
-				SkillsSource:       "github",
+				SkillsSource:       config.SourceGithub,
 			}},
 			errMatcher: internal.ErrorContaining("invalid skills-source"),
 		},

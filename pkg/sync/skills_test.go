@@ -5,6 +5,7 @@ import (
 
 	"github.com/youta-t/its"
 
+	"github.com/logica-oss/synac/pkg/config"
 	"github.com/logica-oss/synac/pkg/sync"
 )
 
@@ -23,13 +24,13 @@ func TestResolveSkills(t *testing.T) {
 	}{
 		{
 			name:    "claude source",
-			args:    args{source: "claude"},
+			args:    args{source: config.SourceClaude},
 			wantSrc: ".claude/skills",
 			wantDst: ".agents/skills",
 		},
 		{
 			name:    "agents source",
-			args:    args{source: "agents"},
+			args:    args{source: config.SourceAgents},
 			wantSrc: ".agents/skills",
 			wantDst: ".claude/skills",
 		},

@@ -13,8 +13,8 @@ import (
 
 // Validate checks source selections and log format.
 func Validate(cfg Config) error {
-	if cfg.LogFormat != logFormatConsole && cfg.LogFormat != logFormatJSON {
-		return errors.WithStack(fmt.Errorf("invalid log-format %q: must be %q or %q", cfg.LogFormat, logFormatConsole, logFormatJSON))
+	if cfg.LogFormat != LogFormatConsole && cfg.LogFormat != LogFormatJSON {
+		return errors.WithStack(fmt.Errorf("invalid log-format %q: must be %q or %q", cfg.LogFormat, LogFormatConsole, LogFormatJSON))
 	}
 
 	switch cfg.ProjectWideSource {

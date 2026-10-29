@@ -5,6 +5,7 @@ import (
 
 	"github.com/youta-t/its"
 
+	"github.com/logica-oss/synac/pkg/config"
 	"github.com/logica-oss/synac/pkg/sync"
 )
 
@@ -27,7 +28,7 @@ func TestResolveProjectWide(t *testing.T) {
 	}{
 		{
 			name: "agents source",
-			args: args{source: "agents"},
+			args: args{source: config.SourceAgents},
 			want: want{
 				src:  "AGENTS.md",
 				dest: ".github/copilot-instructions.md",
@@ -35,7 +36,7 @@ func TestResolveProjectWide(t *testing.T) {
 		},
 		{
 			name: "github source",
-			args: args{source: "github"},
+			args: args{source: config.SourceGithub},
 			want: want{
 				src:  ".github/copilot-instructions.md",
 				dest: "AGENTS.md",

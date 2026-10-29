@@ -6,6 +6,7 @@ import (
 	"github.com/youta-t/its"
 
 	"github.com/logica-oss/synac/internal"
+	"github.com/logica-oss/synac/pkg/config"
 	"github.com/logica-oss/synac/pkg/sync"
 )
 
@@ -28,7 +29,7 @@ func TestResolvePathSpecific(t *testing.T) {
 	}{
 		{
 			name: "claude source",
-			args: args{source: "claude"},
+			args: args{source: config.SourceClaude},
 			want: want{
 				srcDir:  ".claude/rules",
 				destDir: ".github/instructions",
@@ -36,7 +37,7 @@ func TestResolvePathSpecific(t *testing.T) {
 		},
 		{
 			name: "github source",
-			args: args{source: "github"},
+			args: args{source: config.SourceGithub},
 			want: want{
 				srcDir:  ".github/instructions",
 				destDir: ".claude/rules",
@@ -81,7 +82,7 @@ applyTo: "a, b"
 ---
 hello
 `,
-				source: "github",
+				source: config.SourceGithub,
 				relSrc: ".github/instructions/foo.instructions.md",
 			},
 			wantName: "foo.md",
@@ -107,7 +108,7 @@ paths:
 ---
 hello
 `,
-				source: "claude",
+				source: config.SourceClaude,
 				relSrc: ".claude/rules/foo.md",
 			},
 			wantName: "foo.instructions.md",
@@ -127,7 +128,7 @@ hello
 				name: "foo.md",
 				content: `hello
 `,
-				source: "claude",
+				source: config.SourceClaude,
 				relSrc: ".claude/rules/foo.md",
 			},
 			wantName: "foo.instructions.md",
@@ -143,7 +144,7 @@ hello
 				name: "foo.instructions.md",
 				content: `hello
 `,
-				source: "github",
+				source: config.SourceGithub,
 				relSrc: ".github/instructions/foo.instructions.md",
 			},
 			wantName: "foo.md",
@@ -162,7 +163,7 @@ applyTo: 123
 ---
 hello
 `,
-				source: "github",
+				source: config.SourceGithub,
 				relSrc: ".github/instructions/foo.instructions.md",
 			},
 			errMatcher: internal.ErrorContaining("parse foo.instructions.md"),
@@ -176,7 +177,7 @@ paths: 123
 ---
 hello
 `,
-				source: "claude",
+				source: config.SourceClaude,
 				relSrc: ".claude/rules/foo.md",
 			},
 			errMatcher: internal.ErrorContaining("parse foo.md"),
@@ -186,7 +187,7 @@ hello
 			args: args{
 				name:    "foo.md",
 				content: "hello\n",
-				source:  "off",
+				source:  config.SourceOff,
 				relSrc:  "foo.md",
 			},
 			errMatcher: internal.ErrorContaining("unknown path-specific source"),

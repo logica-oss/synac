@@ -14,6 +14,8 @@ import (
 
 	cp "github.com/otiai10/copy"
 	"github.com/youta-t/its"
+
+	"github.com/logica-oss/synac/pkg/config"
 )
 
 const (
@@ -161,7 +163,7 @@ func TestE2E(t *testing.T) {
 			args: args{
 				fixture: "dry-run",
 				argv: func(root string) []string {
-					return []string{"--root", root, "--dry-run", "--path-specific-source", "off", "--skills-source", "off"}
+					return []string{"--root", root, "--dry-run", "--path-specific-source", config.SourceOff, "--skills-source", config.SourceOff}
 				},
 			},
 			want: want{
@@ -174,7 +176,7 @@ func TestE2E(t *testing.T) {
 			args: args{
 				fixture: "all-categories",
 				argv: func(root string) []string {
-					return []string{"--root", root, "--project-wide-source", "off", "--path-specific-source", "off", "--skills-source", "off"}
+					return []string{"--root", root, "--project-wide-source", config.SourceOff, "--path-specific-source", config.SourceOff, "--skills-source", config.SourceOff}
 				},
 			},
 			want: want{
@@ -191,7 +193,7 @@ func TestE2E(t *testing.T) {
 			args: args{
 				fixture: "bad-instruction",
 				argv: func(root string) []string {
-					return []string{"--root", root, "--project-wide-source", "off", "--path-specific-source", "github", "--skills-source", "off"}
+					return []string{"--root", root, "--project-wide-source", config.SourceOff, "--path-specific-source", config.SourceGithub, "--skills-source", config.SourceOff}
 				},
 			},
 			want: want{
@@ -214,8 +216,10 @@ func TestE2E(t *testing.T) {
 			name: "success (flag wins over env and config)",
 			args: args{
 				fixture: "precedence",
-				argv:    func(root string) []string { return []string{"--root", root, "--project-wide-source", "github"} },
-				env:     map[string]string{"SYNAC_PROJECT_WIDE_SOURCE": "off"},
+				argv: func(root string) []string {
+					return []string{"--root", root, "--project-wide-source", config.SourceGithub}
+				},
+				env: map[string]string{"SYNAC_PROJECT_WIDE_SOURCE": config.SourceOff},
 			},
 			want: want{
 				code:  0,
@@ -227,7 +231,7 @@ func TestE2E(t *testing.T) {
 			args: args{
 				fixture: "precedence",
 				argv:    func(root string) []string { return []string{"--root", root} },
-				env:     map[string]string{"SYNAC_PROJECT_WIDE_SOURCE": "github"},
+				env:     map[string]string{"SYNAC_PROJECT_WIDE_SOURCE": config.SourceGithub},
 			},
 			want: want{
 				code:  0,

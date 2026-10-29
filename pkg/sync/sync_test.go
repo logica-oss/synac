@@ -67,10 +67,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "github",
-						PathSpecificSource: "github",
-						SkillsSource:       "agents",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceGithub,
+						PathSpecificSource: config.SourceGithub,
+						SkillsSource:       config.SourceAgents,
 					}
 				},
 			},
@@ -89,10 +89,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "off",
-						SkillsSource:       "off",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceOff,
 					}
 				},
 			},
@@ -105,10 +105,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "github",
-						SkillsSource:       "agents",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceGithub,
+						SkillsSource:       config.SourceAgents,
 					}
 				},
 			},
@@ -130,10 +130,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "claude",
-						SkillsSource:       "off",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceClaude,
+						SkillsSource:       config.SourceOff,
 					}
 				},
 			},
@@ -155,10 +155,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "off",
-						SkillsSource:       "agents",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceAgents,
 					}
 				},
 			},
@@ -189,10 +189,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "off",
-						SkillsSource:       "agents",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceAgents,
 					}
 				},
 			},
@@ -212,11 +212,11 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
+						LogFormat:          config.LogFormatConsole,
 						DryRun:             true,
-						ProjectWideSource:  "github",
-						PathSpecificSource: "off",
-						SkillsSource:       "off",
+						ProjectWideSource:  config.SourceGithub,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceOff,
 					}
 				},
 			},
@@ -232,9 +232,9 @@ hello
 					return config.Config{
 						Root:               root,
 						LogFormat:          "yaml",
-						ProjectWideSource:  "github",
-						PathSpecificSource: "github",
-						SkillsSource:       "agents",
+						ProjectWideSource:  config.SourceGithub,
+						PathSpecificSource: config.SourceGithub,
+						SkillsSource:       config.SourceAgents,
 					}
 				},
 			},
@@ -246,10 +246,10 @@ hello
 				cfg: func(string) config.Config {
 					return config.Config{
 						Root:               filepath.Join(t.TempDir(), "missing"),
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "off",
-						SkillsSource:       "off",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceOff,
 					}
 				},
 			},
@@ -261,10 +261,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "github",
-						PathSpecificSource: "off",
-						SkillsSource:       "off",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceGithub,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceOff,
 					}
 				},
 			},
@@ -284,10 +284,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "github",
-						SkillsSource:       "off",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceGithub,
+						SkillsSource:       config.SourceOff,
 					}
 				},
 			},
@@ -311,10 +311,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "off",
-						SkillsSource:       "agents",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceAgents,
 					}
 				},
 			},
@@ -331,10 +331,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "github",
-						SkillsSource:       "off",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceGithub,
+						SkillsSource:       config.SourceOff,
 					}
 				},
 			},
@@ -355,10 +355,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "github",
-						SkillsSource:       "off",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceGithub,
+						SkillsSource:       config.SourceOff,
 					}
 				},
 			},
@@ -379,10 +379,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "github",
-						PathSpecificSource: "off",
-						SkillsSource:       "off",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceGithub,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceOff,
 					}
 				},
 			},
@@ -403,10 +403,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "off",
-						SkillsSource:       "agents",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceAgents,
 					}
 				},
 			},
@@ -424,10 +424,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "github",
-						PathSpecificSource: "off",
-						SkillsSource:       "off",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceGithub,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceOff,
 					}
 				},
 			},
@@ -447,10 +447,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "off",
-						SkillsSource:       "agents",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceAgents,
 					}
 				},
 			},
@@ -472,10 +472,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "github",
-						SkillsSource:       "off",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceGithub,
+						SkillsSource:       config.SourceOff,
 					}
 				},
 			},
@@ -496,10 +496,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "github",
-						SkillsSource:       "off",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceGithub,
+						SkillsSource:       config.SourceOff,
 					}
 				},
 			},
@@ -516,10 +516,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "off",
-						SkillsSource:       "agents",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceAgents,
 					}
 				},
 			},
@@ -541,10 +541,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "off",
-						SkillsSource:       "agents",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceAgents,
 					}
 				},
 			},
@@ -560,10 +560,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "off",
-						SkillsSource:       "agents",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceAgents,
 					}
 				},
 			},
@@ -584,10 +584,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "claude",
-						SkillsSource:       "off",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceClaude,
+						SkillsSource:       config.SourceOff,
 					}
 				},
 			},
@@ -611,10 +611,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "github",
-						SkillsSource:       "off",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceGithub,
+						SkillsSource:       config.SourceOff,
 					}
 				},
 			},
@@ -637,10 +637,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "off",
-						SkillsSource:       "agents",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceAgents,
 					}
 				},
 			},
@@ -665,10 +665,10 @@ hello
 				cfg: func(root string) config.Config {
 					return config.Config{
 						Root:               root,
-						LogFormat:          "console",
-						ProjectWideSource:  "off",
-						PathSpecificSource: "off",
-						SkillsSource:       "agents",
+						LogFormat:          config.LogFormatConsole,
+						ProjectWideSource:  config.SourceOff,
+						PathSpecificSource: config.SourceOff,
+						SkillsSource:       config.SourceAgents,
 					}
 				},
 			},

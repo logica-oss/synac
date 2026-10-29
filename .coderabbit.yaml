@@ -36,3 +36,5 @@ reviews:
       instructions: "applyTo accepts only a string glob pattern; do not suggest accepting YAML sequences."
     - path: "pkg/md/paths.go"
       instructions: "Non-string paths items must surface as a parse error; do not suggest coercing them to strings."
+    - path: "action.yaml"
+      instructions: "Floating tags resolve via git ls-remote on Git tags, not published releases; a tag without release assets fails with an explicit error. Do not suggest querying the Releases API."

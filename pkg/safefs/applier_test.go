@@ -61,11 +61,7 @@ func TestNewApplier(t *testing.T) {
 				root = filepath.Join(root, "missing")
 			}
 
-			applier, err := safefs.NewApplier(
-				slog.New(slog.NewTextHandler(os.Stderr, nil)),
-				root,
-				tt.args.dryRun,
-			)
+			applier, err := safefs.NewApplier(slog.New(slog.NewTextHandler(os.Stderr, nil)), root, tt.args.dryRun)
 			tt.errMatcher.Match(err).OrError(t)
 
 			if err != nil {
@@ -279,11 +275,7 @@ func TestWriteFile(t *testing.T) {
 				tt.args.setup(t, root)
 			}
 
-			err := a.WriteFile(
-				tt.args.destRel,
-				[]byte(tt.args.data),
-				tt.args.perm,
-			)
+			err := a.WriteFile(tt.args.destRel, []byte(tt.args.data), tt.args.perm)
 			tt.errMatcher.Match(err).OrError(t)
 
 			if err != nil {
@@ -367,10 +359,7 @@ func TestMkdirAll(t *testing.T) {
 				tt.args.setup(t, root)
 			}
 
-			err := a.MkdirAll(
-				tt.args.destRel,
-				tt.args.perm,
-			)
+			err := a.MkdirAll(tt.args.destRel, tt.args.perm)
 			tt.errMatcher.Match(err).OrError(t)
 
 			if err != nil {

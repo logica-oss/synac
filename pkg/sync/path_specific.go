@@ -126,8 +126,7 @@ func parseInstruction(name, content, source, relSrc string) (string, string, err
 		}
 
 		return strings.TrimSuffix(name, ".md") + ".instructions.md",
-			buildInstructionBody(frontmatter,
-				md.StripGeneratedHeader(md.Body(content)), relSrc),
+			buildInstructionBody(frontmatter, md.StripGeneratedHeader(md.Body(content)), relSrc),
 			nil
 
 	case config.SourceGithub:
@@ -142,8 +141,7 @@ func parseInstruction(name, content, source, relSrc string) (string, string, err
 		}
 
 		return strings.TrimSuffix(name, ".instructions.md") + ".md",
-			buildInstructionBody(frontmatter,
-				md.StripGeneratedHeader(md.Body(content)), relSrc),
+			buildInstructionBody(frontmatter, md.StripGeneratedHeader(md.Body(content)), relSrc),
 			nil
 
 	default:

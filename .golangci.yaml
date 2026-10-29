@@ -62,7 +62,7 @@ linters:
     - intrange
     - iotamixing
     - ireturn
-    - lll
+    # - lll # long lines are more readable than forced splits
     - loggercheck
     - maintidx
     - makezero
@@ -159,7 +159,6 @@ linters:
         linters:
           - funlen
           - goconst
-          - lll
           - maintidx
       - path: 0_export_test\.go
         linters:

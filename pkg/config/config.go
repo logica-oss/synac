@@ -64,13 +64,14 @@ func flags() *pflag.FlagSet {
 	flagSet.String(keySkillsSource, SourceAgents, "skills source: agents, claude, or off")
 
 	flagSet.Usage = func() {
-		_, _ = fmt.Fprintf(flagSet.Output(),
-			"Usage: synac [options]\n\nSync agent configs from canonical sources.\n\nOptions:\n")
+		_, _ = fmt.Fprintf(flagSet.Output(), "Usage: synac [options]\n\nSync agent configs from canonical sources.\n\nOptions:\n")
+
 		flagSet.PrintDefaults()
-		_, _ = fmt.Fprintf(flagSet.Output(), "\nConfig file: .synac.yaml (preferred, supports comments)"+
-			" or .synac.json in the repository root.\nEnvironment: SYNAC_* variables"+
-			" (e.g. SYNAC_DRY_RUN, SYNAC_LOG_FORMAT).\n"+
-			"Precedence: flag > env > config file > default.\n")
+
+		_, _ = fmt.Fprintf(flagSet.Output(),
+			"\nConfig file: .synac.yaml (preferred, supports comments) or .synac.json in the repository root.\n"+
+				"Environment: SYNAC_* variables (e.g. SYNAC_DRY_RUN, SYNAC_LOG_FORMAT).\n"+
+				"Precedence: flag > env > config file > default.\n")
 	}
 
 	return flagSet

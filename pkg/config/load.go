@@ -103,9 +103,7 @@ func readConfig(conf *viper.Viper, flagSet *pflag.FlagSet) error {
 	}
 
 	if conf.InConfig(keyRoot) {
-		return errors.WithStack(
-			fmt.Errorf("unsupported config key %q: set the root with --root or SYNAC_ROOT", keyRoot),
-		)
+		return errors.WithStack(fmt.Errorf("unsupported config key %q: set the root with --root or SYNAC_ROOT", keyRoot))
 	}
 
 	return nil

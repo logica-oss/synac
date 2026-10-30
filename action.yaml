@@ -3,6 +3,11 @@ description: Sync agent configs from canonical sources, and fail when they are o
 author: Takuto Nagami
 
 inputs:
+  version:
+    description: >
+      Synac version to install, for example "v0.1.0" or "latest".
+    required: false
+    default: "latest"
   verify:
     description: >
       Fail the job when synac changes a file, so CI catches agent configs that drifted from their canonical sources.
@@ -28,10 +33,11 @@ runs:
       id: download
       shell: bash
       env:
-        REF: ${{ github.action_ref }}
         REPO: ${{ github.action_repository }}
         OS: ${{ runner.os }}
         ARCH: ${{ runner.arch }}
+        VERSION: ${{ inputs.version }}
+        GH_TOKEN: ${{ github.token }}
       run: bash "$GITHUB_ACTION_PATH/scripts/download.sh"
 
     - name: Sync

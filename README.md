@@ -1,5 +1,6 @@
 # synac
 
+![GitHub Release](https://img.shields.io/github/v/release/logica-oss/synac)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![autofix.ci](https://github.com/logica-oss/synac/actions/workflows/autofix.yaml/badge.svg)](https://github.com/logica-oss/synac/actions/workflows/autofix.yaml)
 [![Verify (App)](https://github.com/logica-oss/synac/actions/workflows/verify-app.yaml/badge.svg)](https://github.com/logica-oss/synac/actions/workflows/verify-app.yaml)

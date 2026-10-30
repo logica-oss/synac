@@ -104,8 +104,9 @@ jobs:
       - uses: logica-oss/synac@vX.X.X
 ```
 
-Use a full version tag like `@v0.1.0`, or a floating tag like `@v0`/`@v0.1` (resolved to the highest matching stable release).  
-`@main`/branch/SHA/`@latest` have no release assets, so they fail (resolved from `github.action_ref`).
+Use a full version tag like `@v0.1.0`, or a floating tag like `@v0`/`@v0.1` (resolved to the highest matching stable version tag, which must have release assets).  
+A full-length commit SHA also works when it resolves to a release tag with assets.  
+`@main`/branch/`@latest` have no release assets, so they fail (resolved from `github.action_ref`).
 
 Supports Linux/macOS on `x64`/`arm64`.
 

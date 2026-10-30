@@ -36,7 +36,7 @@ elif [[ "${ver}" =~ ^[0-9a-f]{40}$ ]]; then
   sha="${ver}"
   tags="$(git ls-remote --tags "https://github.com/${REPO}.git" || true)"
 
-  ver="$(printf '%s\n' "${tags}" | grep "^${sha}[[:space:]]" | grep -oE 'refs/tags/v[0-9]+\.[0-9]+\.[0-9]+(\^{})?$' | sed 's/\^{}$//' | sed 's|.*/||' | sort -V | tail -n 1 || true)"
+  ver="$(printf '%s\n' "${tags}" | grep "^${sha}[[:space:]]" | grep -oE 'refs/tags/v[0-9]+\.[0-9]+\.[0-9]+(\^\{\})?$' | sed 's/\^{}$//' | sed 's|.*/||' | sort -V | tail -n 1 || true)"
   if [[ -z "${ver}" ]]; then
     echo "::error::No release tag found for commit ${sha}."
     exit 1
@@ -55,8 +55,14 @@ mkdir -p "${dir}"
 
 base="https://github.com/${REPO}/releases/download/${ver}"
 asset="synac_${ver#v}_${target}.tar.gz"
-curl -fsSL --retry 3 -o "${dir}/${asset}" "${base}/${asset}"
-curl -fsSL --retry 3 -o "${dir}/checksums.txt" "${base}/synac_${ver#v}_checksums.txt"
+curl -fsSL --retry 3 -o "${dir}/${asset}" "${base}/${asset}" || {
+  echo "::error::Cannot download ${asset}. Does tag ${ver} have release assets?"
+  exit 1
+}
+curl -fsSL --retry 3 -o "${dir}/checksums.txt" "${base}/synac_${ver#v}_checksums.txt" || {
+  echo "::error::Cannot download the checksums file. Does tag ${ver} have release assets?"
+  exit 1
+}
 
 expected="$(awk -v a="${asset}" '$2 == a { print $1 }' "${dir}/checksums.txt")"
 actual="$(openssl dgst -sha256 "${dir}/${asset}" | awk '{ print $NF }')"

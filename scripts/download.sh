@@ -27,6 +27,7 @@ elif [[ "${ver}" =~ ^v[0-9]+(\.[0-9]+)?$ ]]; then
   while IFS= read -r candidate; do
     [[ -n "${candidate}" ]] || continue
     candidate_base="https://github.com/${REPO}/releases/download/${candidate}"
+
     candidate_asset="synac_${candidate#v}_${target}.tar.gz"
     asset_code="$(curl -fsSLI --retry 3 -o /dev/null -w "%{http_code}" "${candidate_base}/${candidate_asset}" || true)"
     if [[ "${asset_code}" == "404" ]]; then
@@ -35,6 +36,7 @@ elif [[ "${ver}" =~ ^v[0-9]+(\.[0-9]+)?$ ]]; then
       echo "::error::Cannot probe ${candidate} (asset HTTP ${asset_code})."
       exit 1
     fi
+
     checksum_code="$(curl -fsSLI --retry 3 -o /dev/null -w "%{http_code}" "${candidate_base}/synac_${candidate#v}_checksums.txt" || true)"
     if [[ "${checksum_code}" == "200" ]]; then
       ver="${candidate}"

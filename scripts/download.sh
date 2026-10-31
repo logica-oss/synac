@@ -22,7 +22,7 @@ elif [[ "${ver}" =~ ^v[0-9]+(\.[0-9]+)?$ ]]; then
   prefix="${ver}."
   tags="$(git ls-remote --tags --sort=v:refname "https://github.com/${REPO}.git" "refs/tags/${prefix}*" || true)"
 
-  candidates="$(printf '%s\n' "${tags}" | grep -v '\^{}' | grep -oE 'refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$' | grep -F "refs/tags/${prefix}" | sed 's|.*/||' | sort -V || true)"
+  candidates="$(printf '%s\n' "${tags}" | grep -v '\^{}' | grep -oE 'refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$' | grep -F "refs/tags/${prefix}" | sed 's|.*/||' | sort -Vr || true)"
   ver=""
   while IFS= read -r candidate; do
     [[ -n "${candidate}" ]] || continue
@@ -31,8 +31,10 @@ elif [[ "${ver}" =~ ^v[0-9]+(\.[0-9]+)?$ ]]; then
     if curl -fsSLI --retry 3 -o /dev/null "${candidate_base}/${candidate_asset}" &&
       curl -fsSLI --retry 3 -o /dev/null "${candidate_base}/synac_${candidate#v}_checksums.txt"; then
       ver="${candidate}"
+      break
     fi
   done <<< "${candidates}"
+
   if [[ -z "${ver}" ]]; then
     echo "::error::No stable release found for ${VERSION}."
     exit 1

@@ -37,4 +37,6 @@ reviews:
     - path: "pkg/md/paths.go"
       instructions: "Non-string paths items must surface as a parse error; do not suggest coercing them to strings."
     - path: "action.yaml"
-      instructions: "Floating tags resolve via git ls-remote on Git tags, not published releases; a tag without release assets fails with an explicit error. Do not suggest querying the Releases API."
+      instructions: "The version input defaults to latest and floating versions resolve via git ls-remote with per-candidate asset probes; a tag without release assets falls back to the next matching release. Do not suggest querying the Releases API for floating versions or requiring action-ref fallback."
+    - path: "scripts/download.sh"
+      instructions: "Accept by design (do not report): the action reference and tool version are intentionally decoupled, so SHA pinning secures only the action code while the version input selects the tool release; an omitted version installs latest including future majors. SHA-to-tag reverse lookup is intentionally unsupported; use an explicit version tag instead."

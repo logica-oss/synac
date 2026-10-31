@@ -1,5 +1,6 @@
 # synac
 
+![GitHub Release](https://img.shields.io/github/v/release/logica-oss/synac)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![autofix.ci](https://github.com/logica-oss/synac/actions/workflows/autofix.yaml/badge.svg)](https://github.com/logica-oss/synac/actions/workflows/autofix.yaml)
 [![Verify (App)](https://github.com/logica-oss/synac/actions/workflows/verify-app.yaml/badge.svg)](https://github.com/logica-oss/synac/actions/workflows/verify-app.yaml)
@@ -104,15 +105,15 @@ jobs:
       - uses: logica-oss/synac@vX.X.X
 ```
 
-Use a full version tag like `@v0.1.0`, or a floating tag like `@v0`/`@v0.1` (resolved to the highest matching stable release).  
-`@main`/branch/SHA/`@latest` have no release assets, so they fail (resolved from `github.action_ref`).
+Pin the action with a full-length commit SHA and select the tool version via the `version` input (defaults to `latest`, resolved via the GitHub Releases API).
 
 Supports Linux/macOS on `x64`/`arm64`.
 
-| Input    | Default | Description                                                               |
-| -------- | ------- | ------------------------------------------------------------------------- |
-| `verify` | `true`  | `false` syncs without failing, so a later step can commit the result      |
-| `args`   | `""`    | Extra flags appended to the invocation, for example `--skills-source off` |
+| Input     | Default  | Description                                                               |
+| --------- | -------- | ------------------------------------------------------------------------- |
+| `version` | `latest` | Synac version, for example `v0.1.0`, `v0`, or `latest`                    |
+| `verify`  | `true`   | `false` syncs without failing, so a later step can commit the result      |
+| `args`    | `""`     | Extra flags appended to the invocation, for example `--skills-source off` |
 
 | Output    | Description                                              |
 | --------- | -------------------------------------------------------- |

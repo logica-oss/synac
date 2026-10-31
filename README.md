@@ -111,7 +111,7 @@ Supports Linux/macOS on `x64`/`arm64`.
 
 | Input     | Default  | Description                                                               |
 | --------- | -------- | ------------------------------------------------------------------------- |
-| `version` | `latest` | Synac version to install, for example `v0.1.0` or `latest`                |
+| `version` | `latest` | Synac version, for example `v0.1.0`, `v0`, or `latest`                    |
 | `verify`  | `true`   | `false` syncs without failing, so a later step can commit the result      |
 | `args`    | `""`     | Extra flags appended to the invocation, for example `--skills-source off` |
 

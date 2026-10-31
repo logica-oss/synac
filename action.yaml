@@ -5,7 +5,7 @@ author: Takuto Nagami
 inputs:
   version:
     description: >
-      Synac version to install, for example "v0.1.0" or "latest".
+      Synac version to install, for example "v0.1.0", "v0", or "latest".
     required: false
     default: "latest"
   verify:

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/k1LoW/errors"
-	"go.yaml.in/yaml/v3"
+	"go.yaml.in/yaml/v4"
 )
 
 // BuildApplyToFrontmatter builds an applyTo frontmatter block.

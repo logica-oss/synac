@@ -15,7 +15,7 @@ require (
 	github.com/go-git/go-git/v5 v5.19.3
 	github.com/golangci/golangci-lint/v2 v2.15.0
 	github.com/k1LoW/errors v1.2.1
-	golang.org/x/mod v0.42.0
+	golang.org/x/mod v0.43.0
 )
 
 require (
